@@ -1,50 +1,53 @@
-# Welcome to your Expo app 👋
+📱 ReUse – App de Reutilização
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+📌 Sobre o projeto
+O ReUse é um aplicativo mobile desenvolvido em React Native com o objetivo de conectar pessoas para reutilização de itens, reduzindo desperdícios.
+Nesta fase, o projeto evoluiu dos wireframes para uma aplicação funcional, com foco em UI/UX e uso de recursos nativos.
 
-## Get started
+🎯 Objetivo da fase
+Implementar as telas do app em React Native
+Aplicar boas práticas de UI/UX mobile
+Utilizar recursos nativos (AsyncStorage e câmera)
 
-1. Install dependencies
+📱 Telas desenvolvidas
+Apresentação
+Login
+Home
+Publicar Item
+Perfil (com logout)
 
-   ```bash
-   npm install
-   ```
+🎨 UI/UX aplicados
+Layout responsivo com SafeAreaView
+Ajuste de teclado com KeyboardAvoidingView
+Componentização (ex: PrimaryButton, Cards)
+Navegação com Expo Router
+Feedback visual e validações
+Modal de confirmação ao sair da publicação
 
-2. Start the app
+💾 AsyncStorage
+Utilizado para persistência de sessão e dados do usuário:
 
-   ```bash
-   npx expo start
-   ```
+@reuse_logado → estado de login
+@reuse_usuario → dados do usuário
+@reuse_email e @reuse_lembrar → lembrar login
 
-In the output, you'll find options to open the app in a
+✔️ Login persistente
+✔️ Logout funcional
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+📸 Câmera
+Implementada na tela de Publicar Item, permitindo capturar imagem do produto via:
+expo-image-picker
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+⚙️ Tecnologias
+React Native
+Expo
+Expo Router
+AsyncStorage
+Expo Image Picker
 
-## Get a fresh project
+🔐 Login para teste
+Email: teste@reuse.com  
+Senha: 123456
 
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+🔄 Fluxo
+Apresentação → Login → Home → Publicar Item → Perfil (logout)
