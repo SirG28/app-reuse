@@ -1,13 +1,13 @@
 import React from "react";
 import { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFocusEffect } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 
 export default function UserSummaryCard() {
-    const [totalItens, setTotalItens] = useState(0);
+       const [totalItens, setTotalItens] = useState(0);
+    const router = useRouter();
 
-    // useFocusEffect atualiza TODA vez que a home recebe foco (ex: ao voltar de PublicItem)
     useFocusEffect(
         React.useCallback(() => {
             async function carregarItens() {
@@ -24,7 +24,7 @@ export default function UserSummaryCard() {
     );
 
     return (
-        <View style={styles.card}>
+  <View style={styles.card}>
             <View style={styles.topRow}>
                 <View style={styles.avatarArea}>
                     <View style={styles.avatar}>
@@ -34,7 +34,6 @@ export default function UserSummaryCard() {
                         <Text style={styles.checkText}>✓</Text>
                     </View>
                 </View>
-
                 <View style={styles.userInfo}>
                     <Text style={styles.welcome}>Boas-vindas, Usuário</Text>
                     <Text style={styles.level}>Nível 1</Text>
@@ -46,7 +45,6 @@ export default function UserSummaryCard() {
                     <Text style={styles.progressText}>0 / 1.500 para o Nível 2</Text>
                     <Text style={styles.progressText}>0%</Text>
                 </View>
-
                 <View style={styles.progressBarBackground}>
                     <View style={styles.progressBarFill} />
                 </View>
@@ -58,10 +56,11 @@ export default function UserSummaryCard() {
                     <Text style={styles.statLabel}>Trocas</Text>
                 </View>
 
-                <View style={styles.statCard}>
+                {/* Itens — clicável, vai para Meus Itens */}
+                <Pressable style={styles.statCard} onPress={() => router.push("/myItems")}>
                     <Text style={styles.statNumber}>{totalItens}</Text>
                     <Text style={styles.statLabel}>Itens</Text>
-                </View>
+                </Pressable>
 
                 <View style={styles.statCard}>
                     <Text style={styles.statNumber}>0</Text>
@@ -69,7 +68,6 @@ export default function UserSummaryCard() {
                 </View>
             </View>
         </View>
-        
     );
 }
 
