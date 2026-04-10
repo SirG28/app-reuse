@@ -10,6 +10,8 @@ import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SafeAreaView } from "react-native-safe-area-context";
 import PrimaryButton from "../components/ui/PrimaryButton";
+import SecondaryButton from "@/components/ui/SecondaryButton";
+
 
 type Usuario = {
     nome: string;
@@ -93,8 +95,9 @@ export default function ProfileScreen() {
                         <Text style={styles.infoValue}>Ativa</Text>
                     </View>
                 </View>
-
-                <PrimaryButton title="Sair da conta" onPress={handleLogout} />
+                
+                <PrimaryButton title="Meus Itens" onPress={() => router.push("/myItems")} />
+                <SecondaryButton title="Sair da conta" onPress={handleLogout} />
             </View>
         </SafeAreaView>
     );
@@ -123,6 +126,7 @@ const styles = StyleSheet.create({
     content: {
         flex: 1,
         padding: 20,
+        gap: 8,
     },
 
     avatar: {

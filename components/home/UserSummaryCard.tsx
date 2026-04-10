@@ -1,7 +1,28 @@
 import React from "react";
+import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "expo-router";
 
 export default function UserSummaryCard() {
+    const [totalItens, setTotalItens] = useState(0);
+
+    // useFocusEffect atualiza TODA vez que a home recebe foco (ex: ao voltar de PublicItem)
+    useFocusEffect(
+        React.useCallback(() => {
+            async function carregarItens() {
+                try {
+                    const itensSalvos = await AsyncStorage.getItem("@reuse_itens");
+                    const itens = itensSalvos ? JSON.parse(itensSalvos) : [];
+                    setTotalItens(itens.length);
+                } catch (error) {
+                    console.log("Erro ao carregar itens:", error);
+                }
+            }
+            carregarItens();
+        }, [])
+    );
+
     return (
         <View style={styles.card}>
             <View style={styles.topRow}>
@@ -38,7 +59,7 @@ export default function UserSummaryCard() {
                 </View>
 
                 <View style={styles.statCard}>
-                    <Text style={styles.statNumber}>0</Text>
+                    <Text style={styles.statNumber}>{totalItens}</Text>
                     <Text style={styles.statLabel}>Itens</Text>
                 </View>
 
@@ -48,6 +69,7 @@ export default function UserSummaryCard() {
                 </View>
             </View>
         </View>
+        
     );
 }
 

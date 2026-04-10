@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useState } from "react";
 import {
     Alert,
@@ -57,17 +58,37 @@ export default function PublicItemScreen() {
         }
     }
 
-    function handlePublicar() {
+    async function handlePublicar() {
         if (!titulo || !descricao || !troca || !whatsapp) {
-            Alert.alert(
-                "Atenção",
-                "Preencha pelo menos título, descrição, troca e WhatsApp."
-            );
+            Alert.alert("Atenção", "Preencha pelo menos título, descrição, troca e WhatsApp.");
             return;
         }
 
-        Alert.alert("Sucesso", "Item publicado com sucesso!");
-        router.back();
+        try {
+            // Busca itens já salvos
+            const itensSalvos = await AsyncStorage.getItem("@reuse_itens");
+            const itens = itensSalvos ? JSON.parse(itensSalvos) : [];
+
+            // Cria o novo item
+            const novoItem = {
+                id: Date.now().toString(),
+                titulo,
+                descricao,
+                troca,
+                whatsapp,
+                email,
+                imagem,
+                criadoEm: new Date().toISOString(),
+            };
+
+            // Salva a lista atualizada
+            await AsyncStorage.setItem("@reuse_itens", JSON.stringify([...itens, novoItem]));
+
+            Alert.alert("Sucesso", "Item publicado com sucesso!");
+            router.back();
+        } catch (error) {
+            Alert.alert("Erro", "Não foi possível salvar o item.");
+        }
     }
 
     function handleFechar() {
