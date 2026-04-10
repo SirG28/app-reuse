@@ -84,8 +84,14 @@ export default function PublicItemScreen() {
             // Salva a lista atualizada
             await AsyncStorage.setItem("@reuse_itens", JSON.stringify([...itens, novoItem]));
 
+            const pontosSalvos = await AsyncStorage.getItem("@reuse_pontos");
+            const pontosAtuais = pontosSalvos ? parseInt(pontosSalvos) : 0;
+            await AsyncStorage.setItem("@reuse_pontos", String(pontosAtuais + 50));
+
             Alert.alert("Sucesso", "Item publicado com sucesso!");
             router.back();
+
+
         } catch (error) {
             Alert.alert("Erro", "Não foi possível salvar o item.");
         }

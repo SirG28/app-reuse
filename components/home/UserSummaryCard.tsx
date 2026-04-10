@@ -5,8 +5,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect, useRouter } from "expo-router";
 
 export default function UserSummaryCard() {
-       const [totalItens, setTotalItens] = useState(0);
+    const [totalItens, setTotalItens] = useState(0);
     const router = useRouter();
+    const [pontos, setPontos] = useState(0);
 
     useFocusEffect(
         React.useCallback(() => {
@@ -15,6 +16,9 @@ export default function UserSummaryCard() {
                     const itensSalvos = await AsyncStorage.getItem("@reuse_itens");
                     const itens = itensSalvos ? JSON.parse(itensSalvos) : [];
                     setTotalItens(itens.length);
+
+                    const pontosSalvos = await AsyncStorage.getItem("@reuse_pontos");
+                    setPontos(pontosSalvos ? parseInt(pontosSalvos) : 0);
                 } catch (error) {
                     console.log("Erro ao carregar itens:", error);
                 }
@@ -42,11 +46,11 @@ export default function UserSummaryCard() {
 
             <View style={styles.progressArea}>
                 <View style={styles.progressLabels}>
-                    <Text style={styles.progressText}>0 / 1.500 para o Nível 2</Text>
-                    <Text style={styles.progressText}>0%</Text>
+                    <Text style={styles.progressText}>{pontos} / 1.500 para o Nível 2</Text>
+                    <Text style={styles.progressText}>{Math.min(Math.round((pontos / 1500) * 100), 100)}%</Text>
                 </View>
                 <View style={styles.progressBarBackground}>
-                    <View style={styles.progressBarFill} />
+                    <View style={[styles.progressBarFill, { width: `${Math.min((pontos / 1500) * 100, 100)}%` }]} />
                 </View>
             </View>
 
