@@ -60,18 +60,35 @@ export default function PublicItemScreen() {
 
     async function handlePublicar() {
         if (!titulo || !descricao || !troca || !whatsapp) {
-            Alert.alert("Atenção", "Preencha pelo menos título, descrição, troca e WhatsApp.");
+            Alert.alert(
+                "Atenção",
+                "Preencha pelo menos título, descrição, troca e WhatsApp."
+            );
             return;
         }
 
         try {
-            // Busca itens já salvos
+            // Pega o usuário logado pra pôr o userId
+            const { getCurrentUser } = await import("../services/authService");
+            const { createItem } = await import("../services/itemsService");
+            const usuario = await getCurrentUser();
+
+            // 1. Cria na API
+            const novoItem = await createItem({
+                titulo,
+                descricao,
+                troca,
+                imagem: imagem || undefined,
+                whatsapp,
+                userId: usuario?.id,
+            });
+
+            // 2. Salva também no AsyncStorage (Meus Itens local)
             const itensSalvos = await AsyncStorage.getItem("@reuse_itens");
             const itens = itensSalvos ? JSON.parse(itensSalvos) : [];
 
-            // Cria o novo item
-            const novoItem = {
-                id: Date.now().toString(),
+            const itemLocal = {
+                id: novoItem.id,
                 titulo,
                 descricao,
                 troca,
@@ -81,19 +98,27 @@ export default function PublicItemScreen() {
                 criadoEm: new Date().toISOString(),
             };
 
-            // Salva a lista atualizada
-            await AsyncStorage.setItem("@reuse_itens", JSON.stringify([...itens, novoItem]));
+            await AsyncStorage.setItem(
+                "@reuse_itens",
+                JSON.stringify([...itens, itemLocal])
+            );
 
+            // 3. Pontos (gamificação)
             const pontosSalvos = await AsyncStorage.getItem("@reuse_pontos");
             const pontosAtuais = pontosSalvos ? parseInt(pontosSalvos) : 0;
-            await AsyncStorage.setItem("@reuse_pontos", String(pontosAtuais + 50));
+            await AsyncStorage.setItem(
+                "@reuse_pontos",
+                String(pontosAtuais + 50)
+            );
 
             Alert.alert("Sucesso", "Item publicado com sucesso!");
             router.back();
-
-
-        } catch (error) {
-            Alert.alert("Erro", "Não foi possível salvar o item.");
+        } catch (error: any) {
+            console.log("Erro ao publicar:", error?.message);
+            Alert.alert(
+                "Erro",
+                "Não foi possível publicar o item. Verifique sua conexão."
+            );
         }
     }
 

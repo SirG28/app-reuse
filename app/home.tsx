@@ -1,48 +1,72 @@
-import React from "react";
-import { ScrollView, StyleSheet } from "react-native";
+// app/home.tsx
+import React, { useState, useEffect } from "react";
+import {
+    ScrollView,
+    StyleSheet,
+    ActivityIndicator,
+    Text,
+    View,
+    RefreshControl,
+} from "react-native";
 import HeaderHome from "../components/home/HeaderHome";
 import UserSummaryCard from "../components/home/UserSummaryCard";
 import SectionHeader from "../components/home/SectionHeader";
 import ShortcutCard from "../components/home/ShortcutCard";
 import ItemCard from "../components/home/ItemCard";
 import BottomNav from "../components/home/BottomNav";
+import OfflineBanner from "../components/OfflineBanner";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-const ITENS_FICTÍCIOS = [
-    {
-        id: "1",
-        imagem: require("../assets/images/quadro1.jpg"),
-        titulo: "Quadro Leão",
-        descricao: "Quadro com leão em técnica realista, moldura de madeira escura.",
-        troca: "Quadros decorativos ou esculturas",
-    },
-    {
-        id: "2",
-        imagem: require("../assets/images/quadro2.jpg"),
-        titulo: "Arte Abstrata",
-        descricao: "Arte abstrata com folhas tropicais, cores terrosas e verdes.",
-        troca: "Plantas ou outros quadros abstratos",
-    },
-    {
-        id: "3",
-        imagem: require("../assets/images/quadro3.jpg"),
-        titulo: "Flores Realistas",
-        descricao: "Quadro com tulipas vermelhas, amarelas e brancas em aquarela.",
-        troca: "Vasos, flores artificiais ou quadros florais",
-    },
-];
+import { getItems, refreshItemsCache, Item } from "../services/itemsService";
 
 export default function HomeScreen() {
     const router = useRouter();
+    const [itens, setItens] = useState<Item[]>([]);
+    const [carregando, setCarregando] = useState(true);
+    const [atualizando, setAtualizando] = useState(false);
+    const [erro, setErro] = useState<string | null>(null);
+
+    useEffect(() => {
+        carregarItens();
+    }, []);
+
+    async function carregarItens() {
+        try {
+            setErro(null);
+            const data = await getItems();
+            setItens(data);
+        } catch {
+            setErro(
+                "Não foi possível carregar os itens. Verifique sua conexão."
+            );
+        } finally {
+            setCarregando(false);
+            setAtualizando(false);
+        }
+    }
+
+    async function onRefresh() {
+        setAtualizando(true);
+        await refreshItemsCache();
+        await carregarItens();
+    }
 
     return (
         <SafeAreaView style={styles.container}>
             <HeaderHome />
 
+            <OfflineBanner /> 
+
             <ScrollView
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.scrollContent}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={atualizando}
+                        onRefresh={onRefresh}
+                        tintColor="#7AA61C"
+                    />
+                }
             >
                 <UserSummaryCard />
 
@@ -59,27 +83,51 @@ export default function HomeScreen() {
                         icon="+"
                         onPress={() => router.push("/PublicItem")}
                     />
+                    <ShortcutCard
+                        title="Dicas Sustentáveis"
+                        xp="🌱"
+                        icon="💡"
+                        onPress={() => router.push("/tips")}
+                    />
                     <ShortcutCard title="Realizar Troca" xp="+ 100 XP" icon="⇄" />
                     <ShortcutCard title="Ranking" xp="+ 20 XP" icon="🏆" />
                 </ScrollView>
 
                 <SectionHeader title="Itens para trocar" actionText="Ver todos" />
 
-                <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.itemsRow}
-                >
-                    {ITENS_FICTÍCIOS.map((item) => (
-                        <ItemCard
-                            key={item.id}
-                            imagem={item.imagem}
-                            titulo={item.titulo}
-                            descricao={item.descricao}
-                            troca={item.troca}
-                        />
-                    ))}
-                </ScrollView>
+                {carregando ? (
+                    <ActivityIndicator
+                        size="large"
+                        color="#7AA61C"
+                        style={{ marginVertical: 30 }}
+                    />
+                ) : erro ? (
+                    <View style={styles.feedbackBox}>
+                        <Text style={styles.feedbackText}>{erro}</Text>
+                    </View>
+                ) : itens.length === 0 ? (
+                    <View style={styles.feedbackBox}>
+                        <Text style={styles.feedbackText}>
+                            Nenhum item disponível ainda.
+                        </Text>
+                    </View>
+                ) : (
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={styles.itemsRow}
+                    >
+                        {itens.map((item) => (
+                            <ItemCard
+                                key={item.id}
+                                imagem={item.imagem}
+                                titulo={item.titulo}
+                                descricao={item.descricao}
+                                troca={item.troca}
+                            />
+                        ))}
+                    </ScrollView>
+                )}
             </ScrollView>
 
             <BottomNav />
@@ -104,5 +152,14 @@ const styles = StyleSheet.create({
     itemsRow: {
         paddingBottom: 18,
         gap: 12,
+    },
+    feedbackBox: {
+        padding: 24,
+        alignItems: "center",
+    },
+    feedbackText: {
+        color: "#6B6B6B",
+        fontSize: 14,
+        textAlign: "center",
     },
 });

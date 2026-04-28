@@ -1,3 +1,4 @@
+// app/login.tsx
 import React, { useEffect, useState } from "react";
 import {
     StyleSheet,
@@ -6,11 +7,13 @@ import {
     View,
     Pressable,
     Alert,
+    ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import PrimaryButton from "../components/ui/PrimaryButton";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { login } from "../services/authService";
 
 export default function LoginScreen() {
     const router = useRouter();
@@ -18,9 +21,8 @@ export default function LoginScreen() {
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
     const [lembrar, setLembrar] = useState(false);
-
-    // NOVO: controle de visibilidade da senha
     const [mostrarSenha, setMostrarSenha] = useState(false);
+    const [carregando, setCarregando] = useState(false);
 
     useEffect(() => {
         carregarDadosSalvos();
@@ -33,9 +35,7 @@ export default function LoginScreen() {
 
             if (lembrarSalvo === "true") {
                 setLembrar(true);
-                if (emailSalvo) {
-                    setEmail(emailSalvo);
-                }
+                if (emailSalvo) setEmail(emailSalvo);
             }
         } catch (error) {
             console.log("Erro ao carregar dados:", error);
@@ -48,34 +48,24 @@ export default function LoginScreen() {
             return;
         }
 
+        setCarregando(true);
         try {
-            if (email === "teste@reuse.com" && senha === "123456") {
-                await AsyncStorage.setItem("@reuse_logado", "true");
+            await login(email, senha);
 
-                await AsyncStorage.setItem(
-                    "@reuse_usuario",
-                    JSON.stringify({
-                        email,
-                        nome: "Usuário",
-                    })
-                );
-                router.push("/home");
-
-                if (lembrar) {
-                    await AsyncStorage.setItem("@reuse_email", email);
-                    await AsyncStorage.setItem("@reuse_lembrar", "true");
-                } else {
-                    await AsyncStorage.removeItem("@reuse_email");
-                    await AsyncStorage.setItem("@reuse_lembrar", "false");
-                }
-
-                router.push("/home");
+            if (lembrar) {
+                await AsyncStorage.setItem("@reuse_email", email);
+                await AsyncStorage.setItem("@reuse_lembrar", "true");
             } else {
-                Alert.alert("Erro", "E-mail ou senha inválidos.");
+                await AsyncStorage.removeItem("@reuse_email");
+                await AsyncStorage.setItem("@reuse_lembrar", "false");
             }
-        } catch (error) {
-            console.log("Erro ao fazer login:", error);
-            Alert.alert("Erro", "Não foi possível fazer login.");
+
+            router.replace("/home");
+        } catch (error: any) {
+            const msg = error?.message || "Não foi possível fazer login.";
+            Alert.alert("Erro", msg);
+        } finally {
+            setCarregando(false);
         }
     }
 
@@ -98,7 +88,6 @@ export default function LoginScreen() {
                         onChangeText={setEmail}
                     />
 
-                    {/* ALTERADO: input de senha com botão mostrar/ocultar */}
                     <View style={styles.inputWrapper}>
                         <TextInput
                             style={styles.input}
@@ -108,7 +97,6 @@ export default function LoginScreen() {
                             value={senha}
                             onChangeText={setSenha}
                         />
-
                         <Pressable
                             style={styles.eyeButton}
                             onPress={() => setMostrarSenha(!mostrarSenha)}
@@ -123,13 +111,9 @@ export default function LoginScreen() {
                         style={styles.checkboxRow}
                         onPress={() => setLembrar(!lembrar)}
                     >
-                        {/* ALTERADO: checkbox com check */}
                         <View style={styles.checkbox}>
-                            {lembrar && (
-                                <Text style={styles.checkIcon}>✓</Text>
-                            )}
+                            {lembrar && <Text style={styles.checkIcon}>✓</Text>}
                         </View>
-
                         <Text style={styles.checkboxText}>Lembrar de mim</Text>
                     </Pressable>
                 </View>
@@ -138,12 +122,16 @@ export default function LoginScreen() {
             <View style={styles.footer}>
                 <View style={styles.registerRow}>
                     <Text style={styles.registerText}>Ainda não tem uma conta? </Text>
-                    <Pressable>
+                    <Pressable onPress={() => router.push("/register")}>
                         <Text style={styles.registerLink}>Criar conta</Text>
                     </Pressable>
                 </View>
 
-                <PrimaryButton title="Entrar" onPress={handleLogin} />
+                {carregando ? (
+                    <ActivityIndicator size="large" color="#7AA61C" />
+                ) : (
+                    <PrimaryButton title="Entrar" onPress={handleLogin} />
+                )}
             </View>
         </SafeAreaView>
     );
@@ -155,32 +143,11 @@ const styles = StyleSheet.create({
         backgroundColor: "#F7F9F5",
         paddingHorizontal: 16,
     },
-
-    content: {
-        flex: 1,
-    },
-
-    headerArea: {
-        marginTop: 88,
-        marginBottom: 28,
-    },
-
-    title: {
-        fontSize: 22,
-        fontWeight: "700",
-        color: "#2B2B2B",
-        marginBottom: 8,
-    },
-
-    subtitle: {
-        fontSize: 14,
-        color: "#7B7B7B",
-    },
-
-    formArea: {
-        gap: 12,
-    },
-
+    content: { flex: 1 },
+    headerArea: { marginTop: 88, marginBottom: 28 },
+    title: { fontSize: 22, fontWeight: "700", color: "#2B2B2B", marginBottom: 8 },
+    subtitle: { fontSize: 14, color: "#7B7B7B" },
+    formArea: { gap: 12 },
     input: {
         width: "100%",
         height: 42,
@@ -192,30 +159,10 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: "#2B2B2B",
     },
-
-    /* NOVOS estilos */
-    inputWrapper: {
-        position: "relative",
-        justifyContent: "center",
-    },
-
-    eyeButton: {
-        position: "absolute",
-        right: 12,
-    },
-
-    eyeText: {
-        fontSize: 12,
-        color: "#7AA61C",
-        fontWeight: "600",
-    },
-
-    checkboxRow: {
-        flexDirection: "row",
-        alignItems: "center",
-        marginTop: 2,
-    },
-
+    inputWrapper: { position: "relative", justifyContent: "center" },
+    eyeButton: { position: "absolute", right: 12 },
+    eyeText: { fontSize: 12, color: "#7AA61C", fontWeight: "600" },
+    checkboxRow: { flexDirection: "row", alignItems: "center", marginTop: 2 },
     checkbox: {
         width: 16,
         height: 16,
@@ -227,34 +174,16 @@ const styles = StyleSheet.create({
         backgroundColor: "#FFFFFF",
         marginRight: 8,
     },
-
-    checkIcon: {
-        fontSize: 12,
-        color: "#639922",
-        fontWeight: "700",
-    },
-
-    checkboxText: {
-        fontSize: 14,
-        color: "#7B7B7B",
-    },
-
-    footer: {
-        paddingBottom: 18,
-    },
-
+    checkIcon: { fontSize: 12, color: "#639922", fontWeight: "700" },
+    checkboxText: { fontSize: 14, color: "#7B7B7B" },
+    footer: { paddingBottom: 18 },
     registerRow: {
         flexDirection: "row",
         justifyContent: "center",
         alignItems: "center",
         marginBottom: 14,
     },
-
-    registerText: {
-        fontSize: 13,
-        color: "#8B8B8B",
-    },
-
+    registerText: { fontSize: 13, color: "#8B8B8B" },
     registerLink: {
         fontSize: 13,
         color: "#7AA61C",
