@@ -13,6 +13,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect, useRouter } from "expo-router";
+import { getCurrentUser } from "../services/authService";
 
 type Item = {
     id: string;
@@ -20,6 +21,7 @@ type Item = {
     descricao: string;
     troca: string;
     imagem: string | null;
+    userId?: string;
     criadoEm: string;
 };
 
@@ -38,8 +40,20 @@ export default function MyItemsScreen() {
     );
 
     async function carregar() {
+        const usuario = await getCurrentUser();
         const salvo = await AsyncStorage.getItem("@reuse_itens");
-        setItens(salvo ? JSON.parse(salvo) : []);
+        const todos: Item[] = salvo ? JSON.parse(salvo) : [];
+
+        // Filtra apenas os itens deste usuário
+        const meus = todos.filter((i) => i.userId === usuario?.id);
+
+        // Ordena: mais recente primeiro
+        meus.sort(
+            (a, b) =>
+                new Date(b.criadoEm).getTime() - new Date(a.criadoEm).getTime()
+        );
+
+        setItens(meus);
     }
 
     function abrirEdicao(item: Item) {
@@ -55,15 +69,27 @@ export default function MyItemsScreen() {
             return;
         }
 
-        const atualizados = itens.map((i) =>
+        // Carrega TODOS os itens, edita só o alvo, salva tudo de volta
+        const salvo = await AsyncStorage.getItem("@reuse_itens");
+        const todos: Item[] = salvo ? JSON.parse(salvo) : [];
+
+        const atualizadosTodos = todos.map((i) =>
             i.id === itemEditando!.id
-                ? { ...i, titulo: tituloEdit, descricao: descricaoEdit, troca: trocaEdit }
+                ? {
+                      ...i,
+                      titulo: tituloEdit,
+                      descricao: descricaoEdit,
+                      troca: trocaEdit,
+                  }
                 : i
         );
 
-        await AsyncStorage.setItem("@reuse_itens", JSON.stringify(atualizados));
-        setItens(atualizados);
+        await AsyncStorage.setItem(
+            "@reuse_itens",
+            JSON.stringify(atualizadosTodos)
+        );
         setItemEditando(null);
+        await carregar();
     }
 
     async function excluirItem(id: string) {
@@ -73,9 +99,14 @@ export default function MyItemsScreen() {
                 text: "Excluir",
                 style: "destructive",
                 onPress: async () => {
-                    const atualizados = itens.filter((i) => i.id !== id);
-                    await AsyncStorage.setItem("@reuse_itens", JSON.stringify(atualizados));
-                    setItens(atualizados);
+                    const salvo = await AsyncStorage.getItem("@reuse_itens");
+                    const todos: Item[] = salvo ? JSON.parse(salvo) : [];
+                    const atualizadosTodos = todos.filter((i) => i.id !== id);
+                    await AsyncStorage.setItem(
+                        "@reuse_itens",
+                        JSON.stringify(atualizadosTodos)
+                    );
+                    await carregar();
                 },
             },
         ]);
@@ -103,7 +134,10 @@ export default function MyItemsScreen() {
                     renderItem={({ item }) => (
                         <View style={styles.card}>
                             {item.imagem && (
-                                <Image source={{ uri: item.imagem }} style={styles.image} />
+                                <Image
+                                    source={{ uri: item.imagem }}
+                                    style={styles.image}
+                                />
                             )}
                             <Text style={styles.titulo}>{item.titulo}</Text>
                             <Text style={styles.descricao}>{item.descricao}</Text>
@@ -190,16 +224,8 @@ const styles = StyleSheet.create({
         borderBottomWidth: 0.5,
         borderBottomColor: "#E5E5E5",
     },
-    headerButton: {
-        width: 32,
-        alignItems: "center",
-        justifyContent: "center",
-    },
-    headerIcon: {
-        fontSize: 28,
-        color: "#7AA61C",
-        lineHeight: 32,
-    },
+    headerButton: { width: 32, alignItems: "center", justifyContent: "center" },
+    headerIcon: { fontSize: 28, color: "#7AA61C", lineHeight: 32 },
     headerTitle: { fontSize: 18, fontWeight: "700", color: "#2F2F2F" },
     empty: { flex: 1, alignItems: "center", justifyContent: "center" },
     emptyText: { color: "#6B6B6B", fontSize: 15 },

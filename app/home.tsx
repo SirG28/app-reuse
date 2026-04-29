@@ -8,6 +8,7 @@ import {
     View,
     RefreshControl,
 } from "react-native";
+import { getCurrentUser } from "../services/authService";
 import HeaderHome from "../components/home/HeaderHome";
 import UserSummaryCard from "../components/home/UserSummaryCard";
 import SectionHeader from "../components/home/SectionHeader";
@@ -34,11 +35,16 @@ export default function HomeScreen() {
         try {
             setErro(null);
             const data = await getItems();
-            setItens(data);
-        } catch {
-            setErro(
-                "Não foi possível carregar os itens. Verifique sua conexão."
+            const usuario = await getCurrentUser();
+
+            // Esconde itens do próprio usuário (você não troca consigo mesma)
+            const outros = data.filter(
+                (item) => !usuario || item.userId !== usuario.id
             );
+
+            setItens(outros);
+        } catch {
+            setErro("Não foi possível carregar os itens. Verifique sua conexão.");
         } finally {
             setCarregando(false);
             setAtualizando(false);

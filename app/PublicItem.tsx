@@ -95,6 +95,7 @@ export default function PublicItemScreen() {
                 whatsapp,
                 email,
                 imagem,
+                userId: usuario?.id, 
                 criadoEm: new Date().toISOString(),
             };
 

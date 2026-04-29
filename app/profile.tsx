@@ -5,6 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import PrimaryButton from "../components/ui/PrimaryButton";
 import SecondaryButton from "@/components/ui/SecondaryButton";
 import { getCurrentUser, logout, User } from "../services/authService";
+import BottomNav from "../components/home/BottomNav";
 
 export default function ProfileScreen() {
     const router = useRouter();
@@ -90,6 +91,7 @@ export default function ProfileScreen() {
                 />
                 <SecondaryButton title="Sair da conta" onPress={handleLogout} />
             </View>
+            <BottomNav />
         </SafeAreaView>
     );
 }
@@ -104,7 +106,7 @@ const styles = StyleSheet.create({
         borderBottomColor: "#E5E5E5",
     },
     headerTitle: { fontSize: 18, fontWeight: "700", color: "#2F2F2F" },
-    content: { flex: 1, padding: 20, gap: 8 },
+    content: { flex: 1, padding: 20, paddingBottom: 100, gap: 8 },
     avatar: {
         width: 84,
         height: 84,
