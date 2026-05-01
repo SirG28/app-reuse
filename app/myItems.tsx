@@ -14,6 +14,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect, useRouter } from "expo-router";
 import { getCurrentUser } from "../services/authService";
+import { Feather } from '@expo/vector-icons';
+import BottomNav from "../components/home/BottomNav";
 
 type Item = {
     id: string;
@@ -148,13 +150,15 @@ export default function MyItemsScreen() {
                                     style={styles.btnEditar}
                                     onPress={() => abrirEdicao(item)}
                                 >
-                                    <Text style={styles.btnEditarText}>✏ Editar</Text>
+                                    <Feather name="edit" size={16} color="#7AA61C" />
+                                    <Text style={styles.btnEditarText}>Editar</Text>
                                 </Pressable>
                                 <Pressable
                                     style={styles.btnExcluir}
                                     onPress={() => excluirItem(item.id)}
                                 >
-                                    <Text style={styles.btnExcluirText}>🗑 Excluir</Text>
+                                    <Feather name="trash-2" size={16} color="#E53935" />
+                                    <Text style={styles.btnExcluirText}>Excluir</Text>
                                 </Pressable>
                             </View>
                         </View>
@@ -209,6 +213,7 @@ export default function MyItemsScreen() {
                     </View>
                 </View>
             </Modal>
+            <BottomNav />
         </SafeAreaView>
     );
 }
@@ -241,25 +246,47 @@ const styles = StyleSheet.create({
     titulo: { fontSize: 16, fontWeight: "700", color: "#2F2F2F", marginBottom: 4 },
     descricao: { fontSize: 14, color: "#555", marginBottom: 6 },
     troca: { fontSize: 13, color: "#6E9F1E", fontWeight: "600", marginBottom: 12 },
-    actions: { flexDirection: "row", gap: 10 },
+    actions: {
+        flexDirection: "row",
+        gap: 10,
+    },
+
     btnEditar: {
         flex: 1,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 6,
         paddingVertical: 8,
         borderRadius: 8,
         borderWidth: 1,
         borderColor: "#7AA61C",
-        alignItems: "center",
     },
-    btnEditarText: { color: "#7AA61C", fontWeight: "600", fontSize: 13 },
+
     btnExcluir: {
         flex: 1,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 6,
         paddingVertical: 8,
         borderRadius: 8,
         borderWidth: 1,
         borderColor: "#E53935",
-        alignItems: "center",
     },
-    btnExcluirText: { color: "#E53935", fontWeight: "600", fontSize: 13 },
+
+    btnEditarText: {
+        color: "#7AA61C",
+        fontWeight: "600",
+        fontSize: 13,
+    },
+
+    btnExcluirText: {
+        color: "#E53935",
+        fontWeight: "600",
+        fontSize: 13,
+    },
+
     modalOverlay: {
         flex: 1,
         backgroundColor: "rgba(0,0,0,0.4)",

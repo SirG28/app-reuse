@@ -19,6 +19,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import PrimaryButton from "../components/ui/PrimaryButton";
+import BottomNav from "../components/home/BottomNav";
 
 export default function PublicItemScreen() {
     const router = useRouter();
@@ -275,6 +276,7 @@ export default function PublicItemScreen() {
                     </Modal>
                 </KeyboardAvoidingView>
             </TouchableWithoutFeedback>
+            <BottomNav />
         </SafeAreaView>
     );
 }
@@ -320,7 +322,7 @@ const styles = StyleSheet.create({
     content: {
         paddingHorizontal: 16,
         paddingTop: 18,
-        paddingBottom: 40,
+        paddingBottom: 80,
     },
 
     imageArea: {

@@ -89,9 +89,11 @@ const styles = StyleSheet.create({
         borderColor: "#E5E2DA",
     },
     navItem: {
+        width: 58,
+        height: 48,
         alignItems: "center",
         justifyContent: "center",
-        paddingHorizontal: 4,
+        borderRadius: 10,
     },
     activeItem: {
         backgroundColor: "#6E9F1E",
