@@ -12,6 +12,7 @@ import {
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import PrimaryButton from "../components/ui/PrimaryButton";
+import Logo from "../components/Logo";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { login } from "../services/authService";
 
@@ -73,7 +74,7 @@ export default function LoginScreen() {
         <SafeAreaView style={styles.container}>
             <View style={styles.content}>
                 <View style={styles.headerArea}>
-                    <Text style={styles.title}>Bem vindo ao ReUse!</Text>
+                    <Logo markSize={38} wordmarkSize={26} style={styles.logo} />
                     <Text style={styles.subtitle}>Entre na sua conta:</Text>
                 </View>
 
@@ -145,7 +146,7 @@ const styles = StyleSheet.create({
     },
     content: { flex: 1 },
     headerArea: { marginTop: 88, marginBottom: 28 },
-    title: { fontSize: 22, fontWeight: "700", color: "#2B2B2B", marginBottom: 8 },
+    logo: { marginBottom: 10 },
     subtitle: { fontSize: 14, color: "#7B7B7B" },
     formArea: { gap: 12 },
     input: {

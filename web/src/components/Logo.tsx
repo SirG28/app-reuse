@@ -1,0 +1,32 @@
+type Props = {
+  markSize?: number;
+  className?: string;
+};
+
+export default function Logo({ markSize = 34, className = "" }: Props) {
+  return (
+    <div className={`flex items-center gap-2.5 ${className}`}>
+      <svg
+        viewBox="0 0 100 100"
+        width={markSize}
+        height={markSize}
+        role="img"
+        aria-label="ReUse!"
+      >
+        <path
+          d="M 44.18,17.01 A 33.5,33.5 0 0 1 79.01,66.75 L 85.51,70.5 L 69.25,72.66 L 62.99,57.5 L 69.49,61.25 A 22.5,22.5 0 0 0 46.09,27.84 A 5.5,5.5 0 0 1 44.18,17.01 Z"
+          fill="#7aa61c"
+        />
+        <path
+          d="M 55.82,82.99 A 33.5,33.5 0 0 1 20.99,33.25 L 14.49,29.5 L 30.75,27.34 L 37.01,42.5 L 30.51,38.75 A 22.5,22.5 0 0 0 53.91,72.16 A 5.5,5.5 0 0 1 55.82,82.99 Z"
+          fill="#639922"
+        />
+      </svg>
+      <span className="text-2xl font-extrabold tracking-tight">
+        <span className="text-reuse-text">Re</span>
+        <span className="text-reuse-green">Use</span>
+        <span className="text-reuse-green-dark">!</span>
+      </span>
+    </div>
+  );
+}

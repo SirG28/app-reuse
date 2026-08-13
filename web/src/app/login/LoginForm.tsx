@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useActionState, useState } from "react";
 import { loginAction } from "@/app/actions/auth";
+import Logo from "@/components/Logo";
 import PrimaryButton from "@/components/PrimaryButton";
 import { inputClass, inputHeightClass } from "@/lib/formStyles";
 
@@ -20,9 +21,7 @@ export default function LoginForm({ defaultEmail, defaultRemember }: Props) {
     <div className="flex min-h-screen flex-col px-4">
       <div className="flex-1">
         <div className="mb-7 mt-[88px]">
-          <h1 className="mb-2 text-[22px] font-bold text-[#2B2B2B]">
-            Bem vindo ao ReUse!
-          </h1>
+          <Logo markSize={38} className="mb-3" />
           <p className="text-sm text-[#7B7B7B]">Entre na sua conta:</p>
         </div>
 

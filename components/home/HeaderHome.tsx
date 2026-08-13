@@ -4,7 +4,11 @@ import { StyleSheet, Text, View } from "react-native";
 export default function HeaderHome() {
     return (
         <View style={styles.container}>
-            <Text style={styles.logo}>ReUse</Text>
+            <Text style={styles.logo}>
+                <Text style={styles.logoRe}>Re</Text>
+                <Text style={styles.logoUse}>Use</Text>
+                <Text style={styles.logoBang}>!</Text>
+            </Text>
 
             <View style={styles.xpBadge}>
                 <Text style={styles.xpText}>★ 1.240 XP</Text>
@@ -26,8 +30,20 @@ const styles = StyleSheet.create({
 
     logo: {
         fontSize: 20,
-        fontWeight: "700",
-        color: "#2B2B2B",
+        fontWeight: "800",
+        letterSpacing: -0.3,
+    },
+
+    logoRe: {
+        color: "#2F2F2F",
+    },
+
+    logoUse: {
+        color: "#7AA61C",
+    },
+
+    logoBang: {
+        color: "#639922",
     },
 
     xpBadge: {
