@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // Conexão direta (sem pooler) usada pelo Prisma Migrate — o endpoint
+  // "-pooler" da Neon (PgBouncer, modo transaction) não suporta os locks
+  // e prepared statements que as migrations precisam.
+  directUrl = env("DIRECT_URL")
+}
+
+// Usuário da plataforma ReUse! (equivalente ao User de services/authService.ts no mobile)
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  cep          String?
+  cidade       String?
+  estado       String?
+  createdAt    DateTime @default(now())
+
+  items    Item[]
+  sessions Session[]
+}
+
+// Item publicado para troca (equivalente ao Item de services/itemsService.ts no mobile)
+model Item {
+  id        String   @id @default(cuid())
+  titulo    String
+  descricao String
+  troca     String
+  imagem    String?
+  whatsapp  String
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Sessão de autenticação da versão web (o mobile usa AsyncStorage local; na web
+// o estado de login precisa ser validado no servidor via cookie + tabela)
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
