@@ -56,10 +56,12 @@ O visual (cores, tipografia, componentes) foi recriado a partir dos mesmos token
 
 ## 🚀 Como rodar
 
+O desenvolvimento e os testes deste projeto foram feitos com Postgres na nuvem via **[Neon](https://neon.tech)**. O `docker-compose.yml` do repositório sobe um Postgres local equivalente, como alternativa para quem não quiser criar uma conta no Neon (ex.: para rodar/avaliar o projeto sem depender de um banco externo).
+
 ### Pré-requisitos
 
 - Node.js 20.9+
-- Docker (para o Postgres local)
+- Uma instância Postgres — via [Neon](https://neon.tech) (gratuito, usado no desenvolvimento) **ou** Docker (para rodar localmente)
 
 ### Passo a passo
 
@@ -70,10 +72,15 @@ cd web
 # 2. Instalar dependências
 npm install
 
-# 3. Subir o Postgres local
+# 3. Banco de dados — escolha uma opção:
+#    a) Neon: crie um projeto em neon.tech e copie as duas connection
+#       strings (a com "-pooler" e a direta, sem pooler)
+#    b) Postgres local via Docker:
 docker compose up -d
 
-# 4. Copiar o .env de exemplo (já aponta pro Postgres do docker-compose acima)
+# 4. Copiar o .env de exemplo e preencher DATABASE_URL/DIRECT_URL.
+#    O .env.example já vem no formato do Neon; se for usar Docker local,
+#    use as linhas comentadas com localhost:5432 no lugar.
 cp .env.example .env
 
 # 5. Rodar a primeira migration (cria as tabelas User/Item/Session)
