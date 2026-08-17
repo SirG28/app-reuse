@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireSession } from "@/lib/auth";
 import { logoutAction } from "@/app/actions/auth";
 import SecondaryButton from "@/components/SecondaryButton";
@@ -67,6 +68,13 @@ export default async function ProfilePage() {
             <p className="text-[15px] font-medium text-reuse-text">Ativa</p>
           </div>
         </div>
+
+        <Link
+          href="/items/mine"
+          className="block w-full rounded-xl bg-reuse-green-dark py-3 text-center text-lg font-bold text-white"
+        >
+          Meus Itens
+        </Link>
 
         <form action={logoutAction}>
           <SecondaryButton type="submit">Sair da conta</SecondaryButton>

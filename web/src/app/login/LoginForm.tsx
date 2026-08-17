@@ -18,7 +18,7 @@ export default function LoginForm({ defaultEmail, defaultRemember }: Props) {
   const [lembrar, setLembrar] = useState(defaultRemember);
 
   return (
-    <div className="flex min-h-screen flex-col px-4">
+    <div className="flex h-dvh flex-col px-4">
       <div className="flex-1">
         <div className="mb-7 mt-[88px]">
           <Logo markSize={38} className="mb-3" />

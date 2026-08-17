@@ -1,7 +1,25 @@
-import React from "react";
+import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "expo-router";
 
 export default function HeaderHome() {
+    const [pontos, setPontos] = useState(0);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            async function carregarPontos() {
+                try {
+                    const pontosSalvos = await AsyncStorage.getItem("@reuse_pontos");
+                    setPontos(pontosSalvos ? parseInt(pontosSalvos) : 0);
+                } catch (error) {
+                    console.log("Erro ao carregar pontos:", error);
+                }
+            }
+            carregarPontos();
+        }, [])
+    );
+
     return (
         <View style={styles.container}>
             <Text style={styles.logo}>
@@ -11,7 +29,7 @@ export default function HeaderHome() {
             </Text>
 
             <View style={styles.xpBadge}>
-                <Text style={styles.xpText}>★ 1.240 XP</Text>
+                <Text style={styles.xpText}>★ {pontos} XP</Text>
             </View>
         </View>
     );

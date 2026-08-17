@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createItemAction } from "@/app/actions/items";
 import ScreenHeader from "@/components/ScreenHeader";
@@ -12,6 +12,16 @@ export default function PublishItemForm() {
   const [state, formAction, pending] = useActionState(createItemAction, undefined);
   const [imagem, setImagem] = useState("");
   const [showExitModal, setShowExitModal] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  function handleFotoSelecionada(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => setImagem(reader.result as string);
+    reader.readAsDataURL(file);
+  }
 
   return (
     <>
@@ -30,34 +40,37 @@ export default function PublishItemForm() {
         }
       />
 
-      <form action={formAction} className="px-4 pb-20 pt-[18px]">
-        <div className="mb-6 flex h-[190px] w-full items-center justify-center overflow-hidden bg-[#ECECEC]">
+      <form action={formAction} className="px-4 pt-[18px]">
+        <div className="relative mb-6 flex h-[190px] w-full items-center justify-center overflow-hidden bg-[#ECECEC]">
           {imagem ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={imagem}
               alt="Pré-visualização do item"
               className="h-full w-full object-cover"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = "none";
-              }}
             />
           ) : (
             <div className="h-full w-full bg-[#E9E9E9]" />
           )}
+
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="absolute rounded-lg border border-reuse-green bg-reuse-bg px-4 py-2 text-[13px] font-semibold text-reuse-green"
+          >
+            ＋ Adicionar foto
+          </button>
         </div>
 
-        <label className={labelClass} htmlFor="imagem">
-          URL da foto (opcional)
-        </label>
         <input
-          id="imagem"
-          name="imagem"
-          value={imagem}
-          onChange={(e) => setImagem(e.target.value)}
-          placeholder="https://exemplo.com/foto.jpg"
-          className={`${inputClass} ${inputHeightClass} mb-6`}
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          onChange={handleFotoSelecionada}
+          className="hidden"
         />
+        <input type="hidden" name="imagem" value={imagem} />
 
         <h2 className="mb-3.5 text-lg font-bold text-reuse-text">Produto</h2>
 

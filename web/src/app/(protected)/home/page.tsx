@@ -17,12 +17,15 @@ export default async function HomePage() {
     }),
   ]);
 
+  // Mesma regra de XP do mobile: +50 XP por item publicado (services/itemsService.ts + app/PublicItem.tsx)
+  const pontos = itemCount * 50;
+
   return (
     <div>
-      <HeaderHome />
+      <HeaderHome pontos={pontos} />
 
       <div className="px-4 pt-3">
-        <UserSummaryCard name={user.name} itemCount={itemCount} />
+        <UserSummaryCard name={user.name} itemCount={itemCount} pontos={pontos} />
 
         <SectionHeader title="Atalhos" />
         <div className="mb-[18px] flex gap-2.5 overflow-x-auto pb-1">

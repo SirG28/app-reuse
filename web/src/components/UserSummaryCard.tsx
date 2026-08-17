@@ -3,11 +3,10 @@ import Link from "next/link";
 type Props = {
   name: string;
   itemCount: number;
+  pontos: number;
 };
 
-export default function UserSummaryCard({ name, itemCount }: Props) {
-  // Mesma regra de XP do mobile: +50 XP por item publicado (services/itemsService.ts + app/PublicItem.tsx)
-  const pontos = itemCount * 50;
+export default function UserSummaryCard({ name, itemCount, pontos }: Props) {
   const meta = 1500;
   const progresso = Math.min(Math.round((pontos / meta) * 100), 100);
 
@@ -52,7 +51,7 @@ export default function UserSummaryCard({ name, itemCount }: Props) {
         </div>
 
         <Link
-          href="/items/new"
+          href="/items/mine"
           className="flex-1 rounded-[10px] border border-[#DDD7CC] bg-[#F2F0EC] py-3.5 text-center"
         >
           <p className="mb-1 text-lg font-bold text-reuse-text">{itemCount}</p>
