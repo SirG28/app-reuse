@@ -6,6 +6,8 @@ import { updateItemAction, deleteItemAction } from "@/app/actions/items";
 import Modal from "@/components/Modal";
 import { useToast } from "@/components/ToastProvider";
 import { comprimirImagem } from "@/lib/comprimirImagem";
+import { CATEGORIAS } from "@/lib/categorias";
+import type { Categoria } from "@prisma/client";
 import {
   inputClass,
   inputHeightClass,
@@ -19,6 +21,7 @@ type Item = {
   descricao: string;
   troca: string;
   imagem: string | null;
+  categoria: Categoria;
 };
 
 export default function ItemOwnerPanel({ item }: { item: Item }) {
@@ -140,6 +143,22 @@ export default function ItemOwnerPanel({ item }: { item: Item }) {
             placeholder="Descrição do item"
             className={`${textAreaClass} mb-3.5`}
           />
+
+          <label className={labelClass} htmlFor="edit-categoria">
+            Categoria
+          </label>
+          <select
+            id="edit-categoria"
+            name="categoria"
+            defaultValue={item.categoria}
+            className={`${inputClass} ${inputHeightClass} mb-3.5`}
+          >
+            {CATEGORIAS.map((categoria) => (
+              <option key={categoria.value} value={categoria.value}>
+                {categoria.label}
+              </option>
+            ))}
+          </select>
 
           <label className={labelClass} htmlFor="edit-troca">
             Troca por

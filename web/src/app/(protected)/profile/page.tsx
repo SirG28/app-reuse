@@ -12,7 +12,14 @@ export default async function ProfilePage() {
   const itens = await prisma.item.findMany({
     where: { userId: user.id },
     orderBy: { createdAt: "desc" },
-    select: { id: true, titulo: true, descricao: true, troca: true, imagem: true },
+    select: {
+      id: true,
+      titulo: true,
+      descricao: true,
+      troca: true,
+      imagem: true,
+      categoria: true,
+    },
   });
 
   // Mesma regra de XP do mobile: +50 XP por item publicado (services/itemsService.ts + app/PublicItem.tsx)
@@ -22,7 +29,7 @@ export default async function ProfilePage() {
     <div className="animate-page-in">
       <div className="flex h-14 items-center justify-between border-b border-reuse-header-border px-4">
         <h1 className="truncate text-lg font-bold text-reuse-text">
-          {user.name}
+          Meu Perfil
         </h1>
         <Link
           href="/settings"
@@ -36,7 +43,7 @@ export default async function ProfilePage() {
       </div>
 
       <div className="px-5 pt-4">
-        <div className="mb-3.5 flex items-center gap-5">
+        <div className="mb-3.5 flex items-center gap-4">
           <div
             className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full"
             style={{ backgroundColor: "#DCE8C2" }}
@@ -46,27 +53,29 @@ export default async function ProfilePage() {
             </span>
           </div>
 
-          <div className="flex flex-1 justify-around text-center">
-            <div>
-              <p className="text-lg font-bold text-reuse-text">
-                {itens.length}
+          <div className="flex-1">
+            <p className="text-base font-bold text-reuse-text">
+              {user.name}
+            </p>
+            {user.cidade && (
+              <p className="mb-1.5 text-xs text-reuse-text-secondary">
+                {user.cidade}
+                {user.estado ? ` - ${user.estado}` : ""}
               </p>
-              <p className="text-xs text-reuse-text-secondary">Itens</p>
-            </div>
-            <div>
-              <p className="text-lg font-bold text-reuse-text">{pontos}</p>
-              <p className="text-xs text-reuse-text-secondary">XP</p>
+            )}
+
+            <div className="flex gap-4">
+              <p className="text-sm text-reuse-text">
+                <span className="font-bold">{itens.length}</span>{" "}
+                <span className="text-reuse-text-secondary">itens</span>
+              </p>
+              <p className="text-sm text-reuse-text">
+                <span className="font-bold">{pontos}</span>{" "}
+                <span className="text-reuse-text-secondary">XP</span>
+              </p>
             </div>
           </div>
         </div>
-
-        <p className="text-sm font-bold text-reuse-text">{user.name}</p>
-        {user.cidade && (
-          <p className="text-xs text-reuse-text-secondary">
-            {user.cidade}
-            {user.estado ? ` - ${user.estado}` : ""}
-          </p>
-        )}
 
         <EditProfileModal
           user={{
@@ -96,6 +105,7 @@ export default async function ProfilePage() {
                   titulo={item.titulo}
                   descricao={item.descricao}
                   troca={item.troca}
+                  categoria={item.categoria}
                 />
               </Link>
             ))}

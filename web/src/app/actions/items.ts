@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/auth";
+import { parseCategoria } from "@/lib/categorias";
 
 export type CreateItemState = { error?: string } | undefined;
 
@@ -18,6 +19,7 @@ export async function createItemAction(
   const troca = String(formData.get("troca") || "").trim();
   const whatsapp = String(formData.get("whatsapp") || "").trim();
   const imagem = String(formData.get("imagem") || "").trim() || null;
+  const categoria = parseCategoria(formData.get("categoria"));
 
   if (!titulo || !descricao || !troca || !whatsapp) {
     return {
@@ -30,6 +32,7 @@ export async function createItemAction(
       titulo,
       descricao,
       troca,
+      categoria,
       whatsapp,
       imagem,
       userId: user.id,
@@ -52,6 +55,7 @@ export async function updateItemAction(
   const descricao = String(formData.get("descricao") || "").trim();
   const troca = String(formData.get("troca") || "").trim();
   const imagem = String(formData.get("imagem") || "").trim() || null;
+  const categoria = parseCategoria(formData.get("categoria"));
 
   if (!titulo || !descricao || !troca) {
     return { error: "Preencha todos os campos." };
@@ -64,7 +68,7 @@ export async function updateItemAction(
 
   await prisma.item.update({
     where: { id },
-    data: { titulo, descricao, troca, imagem },
+    data: { titulo, descricao, troca, categoria, imagem },
   });
 
   revalidatePath("/profile");

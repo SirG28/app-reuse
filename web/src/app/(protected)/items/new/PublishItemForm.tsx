@@ -8,6 +8,7 @@ import PrimaryButton from "@/components/PrimaryButton";
 import Modal from "@/components/Modal";
 import { inputClass, inputHeightClass, labelClass, textAreaClass } from "@/lib/formStyles";
 import { comprimirImagem } from "@/lib/comprimirImagem";
+import { CATEGORIAS } from "@/lib/categorias";
 
 export default function PublishItemForm() {
   const router = useRouter();
@@ -102,6 +103,22 @@ export default function PublishItemForm() {
           placeholder="Ex.: 32cm x 24cm, moldura de madeira e pintura feita de acrílico."
           className={`${textAreaClass} mb-3.5`}
         />
+
+        <label className={labelClass} htmlFor="categoria">
+          Categoria
+        </label>
+        <select
+          id="categoria"
+          name="categoria"
+          defaultValue="OUTROS"
+          className={`${inputClass} ${inputHeightClass} mb-3.5`}
+        >
+          {CATEGORIAS.map((categoria) => (
+            <option key={categoria.value} value={categoria.value}>
+              {categoria.label}
+            </option>
+          ))}
+        </select>
 
         <h2 className="mb-3.5 text-lg font-bold text-reuse-text">Troca</h2>
 

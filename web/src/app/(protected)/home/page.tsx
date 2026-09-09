@@ -52,7 +52,11 @@ export default async function HomePage() {
           <ShortcutCard title="Ranking" xp="+ 20 XP" icon="🏆" />
         </div>
 
-        <SectionHeader title="Itens para trocar" actionText="Ver todos" />
+        <SectionHeader
+          title="Itens para trocar"
+          actionText="Ver todos"
+          actionHref="/items"
+        />
 
         {itens.length === 0 ? (
           <div className="items-center px-6 py-6 text-center">
@@ -74,6 +78,7 @@ export default async function HomePage() {
                   titulo={item.titulo}
                   descricao={item.descricao}
                   troca={item.troca}
+                  categoria={item.categoria}
                 />
               </Link>
             ))}

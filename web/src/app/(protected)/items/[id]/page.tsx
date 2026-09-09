@@ -5,6 +5,7 @@ import { requireSession } from "@/lib/auth";
 import ItemComments from "@/components/ItemComments";
 import ItemOwnerPanel from "./ItemOwnerPanel";
 import ItemDetailHeader from "./ItemDetailHeader";
+import { categoriaLabel } from "@/lib/categorias";
 
 type Params = { id: string };
 
@@ -68,6 +69,9 @@ export default async function ItemDetailsPage({
           )}
         </div>
 
+        <span className="mb-1.5 inline-block w-fit rounded-full bg-reuse-avatar-bg px-2.5 py-0.5 text-[11px] font-semibold text-reuse-green-dark">
+          {categoriaLabel(item.categoria)}
+        </span>
         <p className="mb-1.5 text-xl font-bold text-reuse-text">
           {item.titulo}
         </p>
@@ -86,6 +90,7 @@ export default async function ItemDetailsPage({
               descricao: item.descricao,
               troca: item.troca,
               imagem: item.imagem,
+              categoria: item.categoria,
             }}
           />
         ) : (

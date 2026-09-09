@@ -27,15 +27,34 @@ model User {
   comments Comment[]
 }
 
+// Categorias do marketplace — usadas para navegação/filtro na página "Ver
+// todos" (/items). Não restringem com quem um item pode ser trocado: o
+// campo `troca` já é livre hoje, e trocas cruzadas entre categorias são o
+// próprio ponto de um app de troca (a mesma lógica de qualquer marketplace
+// real, onde categoria é descoberta, não regra de negócio).
+enum Categoria {
+  ELETRONICOS
+  MOVEIS_DECORACAO
+  ROUPAS_ACESSORIOS
+  LIVROS_MIDIA
+  ESPORTE_LAZER
+  BRINQUEDOS_INFANTIL
+  ELETRODOMESTICOS
+  INSTRUMENTOS_MUSICAIS
+  FERRAMENTAS_JARDIM
+  OUTROS
+}
+
 // Item publicado para troca (equivalente ao Item de services/itemsService.ts no mobile)
 model Item {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   titulo    String
   descricao String
   troca     String
+  categoria Categoria @default(OUTROS)
   imagem    String?
   whatsapp  String
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)

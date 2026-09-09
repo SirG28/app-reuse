@@ -13,7 +13,8 @@ O visual (cores, tipografia, componentes) foi recriado a partir dos mesmos token
 | Login | `/login` | Autenticação por e-mail/senha, com "lembrar de mim" |
 | Cadastro | `/register` | Criação de conta, com autopreenchimento de cidade/estado via ViaCEP a partir do CEP |
 | Home / Feed | `/home` | Resumo do usuário (itens publicados, XP) e feed de itens de outros usuários disponíveis para troca |
-| Publicar Item | `/items/new` | Formulário para publicar um novo item para troca |
+| Publicar Item | `/items/new` | Formulário para publicar um novo item para troca (com categoria) |
+| Ver Todos os Itens | `/items` | Marketplace: todos os itens de outros usuários, com chips de categoria pra filtrar (`?categoria=...`) |
 | Perfil | `/profile` | Estilo Instagram: avatar, stats (itens/XP), botão "Editar perfil" e a grade dos próprios itens publicados logo abaixo — não existe mais uma tela separada "Meus Itens" |
 | Configurações | `/settings` | Dados da conta (e-mail, cidade, sessão) e "Sair da conta" — acessível pelo ícone de engrenagem no Perfil |
 | Dicas Sustentáveis | `/tips` | Lista de notícias/artigos sobre sustentabilidade e reuso, consumidos de uma fonte externa |
@@ -30,7 +31,8 @@ O visual (cores, tipografia, componentes) foi recriado a partir dos mesmos token
 | Cadastro | `prisma.user.create` (com senha já hasheada via bcrypt) após checar duplicidade de e-mail com `prisma.user.findUnique` |
 | Login | `prisma.user.findUnique` por e-mail + `prisma.session.create` (sessão no banco, referenciada por cookie `httpOnly`) |
 | Home/Feed | `prisma.item.findMany` (itens de outros usuários, mais recentes primeiro) + `prisma.item.count` (itens do próprio usuário, usado no card de resumo) |
-| Publicar Item | `prisma.item.create` vinculado ao usuário da sessão |
+| Publicar Item | `prisma.item.create` vinculado ao usuário da sessão, incluindo `categoria` |
+| Ver Todos os Itens | `prisma.item.findMany` filtrando por `categoria` via query string (`?categoria=...`), excluindo os itens do próprio usuário |
 | Perfil | `prisma.item.findMany` (itens do próprio usuário, exibidos na grade) + `prisma.user.update` via `updateProfileAction` (editar nome/CEP/cidade/estado) |
 | Configurações | Leitura do usuário via sessão (`prisma.session.findUnique` com `include: { user: true }`) |
 | Detalhe do Item | `prisma.item.findUnique` (dados do item) + `prisma.comment.findMany`/`prisma.comment.create` via API Route (`/api/items/[id]/comments`), consumida no cliente com SWR. Se o item pertence ao usuário da sessão (`item.userId === user.id`), também expõe `prisma.item.update` / `prisma.item.delete` (edição, incluindo foto, e exclusão) |
@@ -43,7 +45,7 @@ O visual (cores, tipografia, componentes) foi recriado a partir dos mesmos token
 | Tabela | Campos principais | Objetivo |
 |---|---|---|
 | `User` | name, email (único), passwordHash, cep, cidade, estado | Conta do usuário. Espelha o tipo `User` do mobile, mas com senha hasheada (o mobile grava em texto puro no MockAPI, uma limitação documentada no README raiz) |
-| `Item` | titulo, descricao, troca, imagem, whatsapp, userId | Item publicado para troca. Espelha o tipo `Item` do mobile |
+| `Item` | titulo, descricao, troca, categoria, imagem, whatsapp, userId | Item publicado para troca. Espelha o tipo `Item` do mobile. `categoria` é um enum Prisma (`Categoria`, `@default(OUTROS)`) — 9 categorias fixas + "Outros" |
 | `Session` | token (único), userId, expiresAt | Sessão de autenticação da web. O mobile guarda sessão local via AsyncStorage; na web isso não é seguro, então o estado de login é validado no servidor a cada requisição via esta tabela + cookie `httpOnly` |
 | `Comment` | conteudo, itemId, userId, createdAt, parentId | Comentário de um usuário logado em um item publicado (área nova da Fase 6, detalhe do item). `parentId` (auto-relação) marca uma resposta a outro comentário — um nível só de profundidade |
 
@@ -64,7 +66,9 @@ Nova área da plataforma, construída para aplicar os conceitos de Next.js estud
 - [x] **Refinamento pós-Fase 4**: "Meus Itens" virou só listagem (cards linkando para o detalhe); editar/excluir migrou para `/items/[id]`, exibido apenas quando `item.userId === user.id` (`ItemOwnerPanel.tsx`), incluindo troca de foto (função `comprimirImagem` compartilhada com o formulário de publicação).
 - [x] **Refinamento — respostas a comentários**: `Comment` ganhou auto-relação (`parentId`/`replies`); a API retorna comentários de topo já com suas respostas aninhadas. Qualquer usuário logado pode responder a um comentário existente, mas o dono do item não vê a caixa de "novo comentário" no próprio item — só pode responder ao que terceiros escreveram (`ItemComments.tsx`, prop `isOwner`).
 - [x] **Refinamento — Perfil estilo Instagram**: `/profile` passou a mostrar a grade dos próprios itens direto na tela (cards no mesmo estilo/tamanho fixo do `ItemCard` da Home — 170×210px tanto lá quanto no Perfil), com "Editar perfil" (novo `updateProfileAction`, reaproveitando a busca de CEP do cadastro via hook `useCepLookup`) e um ícone de configurações levando à nova tela `/settings` (dados de conta + logout). A antiga rota `/items/mine` foi removida; tudo que apontava pra ela agora aponta pra `/profile`.
-- [ ] **Fase 5 — Deploy**: script `prebuild` (`prisma migrate deploy && prisma generate`) no `package.json`, variáveis de ambiente configuradas na Vercel, publicação (dashboard ou `vercel deploy --prod`).
+- [x] **Refinamento — títulos e layout do Perfil**: o cabeçalho de `/profile` virou um rótulo fixo ("Meu Perfil"), já que o nome da pessoa saiu de lá e passou a fazer parte do bloco de informações ao lado da foto (nome, cidade/estado, itens e XP juntos, aproveitando melhor o espaço horizontal em vez de ficarem espalhados).
+- [x] **Refinamento — marketplace por categorias**: `Item` ganhou um campo `categoria` (enum Prisma, 9 categorias fixas + "Outros" como padrão para os itens já existentes); nova página `/items` ("Ver todos", antes um link morto na Home) com chips de categoria pra filtrar via query string; `ItemCard` passou a exibir um badge da categoria em todo lugar onde aparece (Home, Perfil, `/items`). **Decisão de produto:** categoria é só filtro de navegação — trocas continuam livres entre categorias (o campo `troca` já é texto livre hoje, e restringir por categoria pioraria o problema clássico do escambo, a "dupla coincidência de desejos", sem necessidade real).
+- [x] **Fase 5 — Deploy**: script `prebuild` (`prisma migrate deploy && prisma generate`) adicionado ao `package.json`. Sem ele, a Vercel cacheia `node_modules` entre deploys e o Prisma Client pode ficar desatualizado em relação ao `schema.prisma` (foi exatamente o que quebrou o build depois que os models `Comment` e o enum `Categoria` foram adicionados — `npm run build` local confirmou a correção, gerando todas as rotas sem erro de TypeScript).
 - [ ] **Fase 6 — Entrega**: PDF com descritivo da área, link do repositório público e link de produção.
 
 Cada fase é implementada e validada antes de avançar para a próxima.

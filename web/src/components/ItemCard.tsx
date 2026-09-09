@@ -1,14 +1,24 @@
+import type { Categoria } from "@prisma/client";
+import { categoriaLabel } from "@/lib/categorias";
+
 type Props = {
   imagem?: string | null;
   titulo: string;
   descricao: string;
   troca: string;
+  categoria?: Categoria;
 };
 
-export default function ItemCard({ imagem, titulo, descricao, troca }: Props) {
+export default function ItemCard({
+  imagem,
+  titulo,
+  descricao,
+  troca,
+  categoria,
+}: Props) {
   return (
     <div className="h-[210px] w-[170px] shrink-0 overflow-hidden rounded-xl border border-[#E2DED6] bg-white">
-      <div className="h-[110px] w-full bg-[#F0F0EE]">
+      <div className="relative h-[110px] w-full bg-[#F0F0EE]">
         {imagem ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -18,6 +28,12 @@ export default function ItemCard({ imagem, titulo, descricao, troca }: Props) {
           />
         ) : (
           <div className="h-full w-full bg-[#E9E9E9]" />
+        )}
+
+        {categoria && (
+          <span className="absolute left-1.5 top-1.5 truncate rounded-full bg-white/90 px-1.5 py-0.5 text-[9px] font-semibold text-reuse-green-dark shadow-sm">
+            {categoriaLabel(categoria)}
+          </span>
         )}
       </div>
 
