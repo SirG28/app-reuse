@@ -24,6 +24,7 @@ model User {
 
   items    Item[]
   sessions Session[]
+  comments Comment[]
 }
 
 // Item publicado para troca (equivalente ao Item de services/itemsService.ts no mobile)
@@ -38,6 +39,8 @@ model Item {
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  comments Comment[]
 }
 
 // Sessão de autenticação da versão web (o mobile usa AsyncStorage local; na web
@@ -50,4 +53,24 @@ model Session {
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Comentário de um usuário em um item publicado (área nova: detalhe do item)
+model Comment {
+  id        String   @id @default(cuid())
+  conteudo  String
+  createdAt DateTime @default(now())
+
+  itemId String
+  item   Item   @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Resposta a um comentário existente (ex.: o dono do item respondendo a
+  // uma pergunta). Um nível só de profundidade: uma resposta não tem, ela
+  // mesma, respostas.
+  parentId String?
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  Comment[] @relation("CommentReplies")
 }

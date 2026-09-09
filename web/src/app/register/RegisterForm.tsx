@@ -1,60 +1,24 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useState } from "react";
 import { registerAction } from "@/app/actions/auth";
 import PrimaryButton from "@/components/PrimaryButton";
 import ScreenHeader from "@/components/ScreenHeader";
 import { inputClass, inputHeightClass, labelClass } from "@/lib/formStyles";
-
-type CepResult = {
-  localidade: string;
-  uf: string;
-  erro?: boolean;
-};
+import { useCepLookup } from "@/lib/useCepLookup";
 
 export default function RegisterForm() {
   const [state, formAction, pending] = useActionState(registerAction, undefined);
 
   const [cep, setCep] = useState("");
-  const [cidade, setCidade] = useState("");
-  const [estado, setEstado] = useState("");
-  const [buscandoCep, setBuscandoCep] = useState(false);
-  const [cepError, setCepError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const cepLimpo = cep.replace(/\D/g, "");
-    if (cepLimpo.length !== 8) return;
-
-    let cancelled = false;
-
-    async function preencherEnderecoPorCep() {
-      setBuscandoCep(true);
-      setCepError(null);
-
-      try {
-        const res = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
-        const data: CepResult = await res.json();
-        if (cancelled) return;
-
-        if (data.erro) {
-          setCepError("CEP não encontrado.");
-          return;
-        }
-        setCidade(data.localidade);
-        setEstado(data.uf);
-      } catch {
-        if (!cancelled) setCepError("Não foi possível buscar o CEP.");
-      } finally {
-        if (!cancelled) setBuscandoCep(false);
-      }
-    }
-
-    preencherEnderecoPorCep();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [cep]);
+  const {
+    cidade,
+    setCidade,
+    estado,
+    setEstado,
+    buscando: buscandoCep,
+    erro: cepError,
+  } = useCepLookup(cep);
 
   return (
     <>

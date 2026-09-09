@@ -7,7 +7,7 @@ type Props = {
 
 export default function ItemCard({ imagem, titulo, descricao, troca }: Props) {
   return (
-    <div className="w-[170px] shrink-0 overflow-hidden rounded-xl border border-[#E2DED6] bg-white">
+    <div className="h-[210px] w-[170px] shrink-0 overflow-hidden rounded-xl border border-[#E2DED6] bg-white">
       <div className="h-[110px] w-full bg-[#F0F0EE]">
         {imagem ? (
           // eslint-disable-next-line @next/next/no-img-element

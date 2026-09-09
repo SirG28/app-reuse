@@ -51,6 +51,7 @@ export async function updateItemAction(
   const titulo = String(formData.get("titulo") || "").trim();
   const descricao = String(formData.get("descricao") || "").trim();
   const troca = String(formData.get("troca") || "").trim();
+  const imagem = String(formData.get("imagem") || "").trim() || null;
 
   if (!titulo || !descricao || !troca) {
     return { error: "Preencha todos os campos." };
@@ -63,10 +64,10 @@ export async function updateItemAction(
 
   await prisma.item.update({
     where: { id },
-    data: { titulo, descricao, troca },
+    data: { titulo, descricao, troca, imagem },
   });
 
-  revalidatePath("/items/mine");
+  revalidatePath("/profile");
   return { success: true };
 }
 
@@ -80,5 +81,6 @@ export async function deleteItemAction(formData: FormData) {
   }
 
   await prisma.item.delete({ where: { id } });
-  revalidatePath("/items/mine");
+  revalidatePath("/profile");
+  redirect("/profile");
 }

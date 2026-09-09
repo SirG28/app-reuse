@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/auth";
 import HeaderHome from "@/components/HeaderHome";
@@ -62,9 +63,10 @@ export default async function HomePage() {
         ) : (
           <div className="no-scrollbar flex gap-3 overflow-x-auto pb-1">
             {itens.map((item, i) => (
-              <div
+              <Link
                 key={item.id}
-                className="animate-item-in"
+                href={`/items/${item.id}`}
+                className="animate-item-in block"
                 style={{ animationDelay: `${Math.min(i, 8) * 60}ms` }}
               >
                 <ItemCard
@@ -73,7 +75,7 @@ export default async function HomePage() {
                   descricao={item.descricao}
                   troca={item.troca}
                 />
-              </div>
+              </Link>
             ))}
           </div>
         )}

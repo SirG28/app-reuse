@@ -57,7 +57,7 @@ export default function UserSummaryCard({ name, itemCount, pontos }: Props) {
         </div>
 
         <Link
-          href="/items/mine"
+          href="/profile"
           className="flex-1 rounded-[10px] border border-[#DDD7CC] bg-[#F2F0EC] py-3.5 text-center"
         >
           <p className="mb-1 text-lg font-bold text-reuse-text">{itemCount}</p>
