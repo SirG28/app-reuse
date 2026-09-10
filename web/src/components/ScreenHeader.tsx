@@ -15,7 +15,7 @@ export default function ScreenHeader({ title, backHref, onBack, right }: Props) 
         <button
           type="button"
           onClick={onBack}
-          className="flex w-8 items-center justify-center text-[28px] leading-8 text-reuse-green md:invisible"
+          className="flex w-8 items-center justify-center text-[28px] leading-8 text-reuse-green md:hidden"
           aria-label="Voltar"
         >
           ‹
@@ -23,7 +23,7 @@ export default function ScreenHeader({ title, backHref, onBack, right }: Props) 
       ) : (
         <Link
           href={backHref}
-          className="flex w-8 items-center justify-center text-[28px] leading-8 text-reuse-green md:invisible"
+          className="flex w-8 items-center justify-center text-[28px] leading-8 text-reuse-green md:hidden"
           aria-label="Voltar"
         >
           ‹

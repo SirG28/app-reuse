@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { acceptTradeRequestAction, declineTradeRequestAction } from "@/app/actions/trades";
+import Button from "@/components/Button";
 
 export default function TradeRequestActions({
   tradeRequestId,
@@ -18,13 +19,9 @@ export default function TradeRequestActions({
         className="flex-1"
       >
         <input type="hidden" name="tradeRequestId" value={tradeRequestId} />
-        <button
-          type="submit"
-          disabled={enviando !== null}
-          className="w-full rounded-lg border border-reuse-danger py-2 text-[13px] font-semibold text-reuse-danger disabled:opacity-60"
-        >
+        <Button type="submit" variant="danger" size="sm" fullWidth disabled={enviando !== null}>
           {enviando === "recusar" ? "Recusando..." : "Recusar"}
-        </button>
+        </Button>
       </form>
       <form
         action={acceptTradeRequestAction}
@@ -32,13 +29,9 @@ export default function TradeRequestActions({
         className="flex-1"
       >
         <input type="hidden" name="tradeRequestId" value={tradeRequestId} />
-        <button
-          type="submit"
-          disabled={enviando !== null}
-          className="w-full rounded-lg bg-reuse-green-accent py-2 text-[13px] font-bold text-white disabled:opacity-60"
-        >
+        <Button type="submit" variant="primary" size="sm" fullWidth disabled={enviando !== null}>
           {enviando === "aceitar" ? "Aceitando..." : "Aceitar"}
-        </button>
+        </Button>
       </form>
     </div>
   );

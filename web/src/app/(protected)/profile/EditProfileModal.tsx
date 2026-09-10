@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { updateProfileAction } from "@/app/actions/auth";
+import Button from "@/components/Button";
 import Modal from "@/components/Modal";
 import { useToast } from "@/components/ToastProvider";
 import { useCepLookup } from "@/lib/useCepLookup";
@@ -45,13 +46,16 @@ export default function EditProfileModal({ user }: { user: User }) {
 
   return (
     <>
-      <button
+      <Button
         type="button"
+        variant="secondary"
+        size="sm"
+        fullWidth
+        className="mt-3"
         onClick={() => setAberto(true)}
-        className="mt-3 w-full rounded-lg border border-reuse-green-dark py-2 text-sm font-bold text-reuse-green-dark"
       >
         Editar perfil
-      </button>
+      </Button>
 
       <Modal open={aberto} onClose={() => setAberto(false)}>
         <p className="mb-4 text-lg font-bold text-reuse-text">Editar perfil</p>
@@ -126,20 +130,12 @@ export default function EditProfileModal({ user }: { user: User }) {
           )}
 
           <div className="flex gap-2.5">
-            <button
-              type="button"
-              onClick={() => setAberto(false)}
-              className="flex-1 rounded-lg border border-[#CCCCCC] py-3 text-[13px] font-semibold text-[#666666]"
-            >
+            <Button type="button" variant="ghost" size="sm" className="flex-1" onClick={() => setAberto(false)}>
               Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={pending}
-              className="flex-1 rounded-lg bg-reuse-green-accent py-3 text-[13px] font-bold text-white disabled:opacity-60"
-            >
+            </Button>
+            <Button type="submit" size="sm" className="flex-1" disabled={pending}>
               {pending ? "Salvando..." : "Salvar"}
-            </button>
+            </Button>
           </div>
         </form>
       </Modal>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import useSWR, { type KeyedMutator } from "swr";
 import { useForm } from "react-hook-form";
+import Button from "@/components/Button";
 import { textAreaClass } from "@/lib/formStyles";
 
 type Resposta = {
@@ -120,20 +121,18 @@ function ComentarioCard({
           )}
 
           <div className="flex gap-2">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="rounded-lg bg-reuse-green-dark px-3.5 py-1.5 text-xs font-bold text-white disabled:opacity-60"
-            >
+            <Button type="submit" size="sm" fullWidth={false} disabled={isSubmitting}>
               {isSubmitting ? "Enviando..." : "Responder"}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="ghost"
+              size="sm"
+              fullWidth={false}
               onClick={() => setRespondendo(false)}
-              className="rounded-lg border border-[#CCCCCC] px-3.5 py-1.5 text-xs font-semibold text-[#666666]"
             >
               Cancelar
-            </button>
+            </Button>
           </div>
         </form>
       ) : (
@@ -240,13 +239,9 @@ export default function ItemComments({
             </p>
           )}
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="rounded-lg bg-reuse-green-dark px-4 py-2 text-sm font-bold text-white transition duration-150 active:scale-[0.97] disabled:opacity-60"
-          >
+          <Button type="submit" size="sm" fullWidth={false} disabled={isSubmitting}>
             {isSubmitting ? "Enviando..." : "Comentar"}
-          </button>
+          </Button>
         </form>
       )}
     </section>

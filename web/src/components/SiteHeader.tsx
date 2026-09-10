@@ -3,15 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-
-type NavItem = { href: string; label: string };
-
-const NAV_ITEMS: NavItem[] = [
-  { href: "/home", label: "Início" },
-  { href: "/items", label: "Itens" },
-  { href: "/trocas", label: "Trocas" },
-  { href: "/profile", label: "Perfil" },
-];
+import IconButton from "@/components/IconButton";
+import Logo from "@/components/Logo";
+import MobileNavDrawer from "@/components/MobileNavDrawer";
+import { NAV_ITEMS } from "@/lib/navItems";
 
 function GearIcon() {
   return (
@@ -32,19 +27,14 @@ function BurgerIcon() {
   );
 }
 
-function CloseIcon() {
-  return (
-    <svg width={20} height={20} viewBox="0 0 16 16" fill="currentColor">
-      <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z" />
-    </svg>
-  );
-}
-
 type Props = {
+  userName: string;
+  userCidade: string | null;
+  userEstado: string | null;
   logoutAction: (formData: FormData) => void | Promise<void>;
 };
 
-export default function SiteHeader({ logoutAction }: Props) {
+export default function SiteHeader({ userName, userCidade, userEstado, logoutAction }: Props) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -53,87 +43,89 @@ export default function SiteHeader({ logoutAction }: Props) {
   }
 
   function navLinkClass(href: string) {
-    return `rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors ${
+    return `focus-ring rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors ${
       isActive(href)
         ? "bg-reuse-green-accent text-white"
-        : "text-reuse-text-secondary hover:bg-[#F0F0EE]"
+        : "text-reuse-text-secondary hover:bg-reuse-surface-sunken"
     }`;
   }
 
+  const localizacao = userCidade ? `${userCidade}${userEstado ? ` - ${userEstado}` : ""}` : null;
+
   return (
-    <header className="sticky top-0 z-30 border-b border-reuse-header-border bg-white/95 backdrop-blur">
-      <div className="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-4">
-        <Link href="/home" className="shrink-0 text-xl font-extrabold tracking-tight">
-          <span className="text-reuse-text">Re</span>
-          <span className="text-reuse-green">Use</span>
-          <span className="text-reuse-green-dark">!</span>
-        </Link>
-
-        <nav className="hidden items-center gap-1 md:flex">
-          {NAV_ITEMS.map((item) => (
-            <Link key={item.href} href={item.href} className={navLinkClass(item.href)}>
-              {item.label}
-            </Link>
-          ))}
-          <span className="ml-1 cursor-default rounded-full px-3.5 py-1.5 text-sm font-semibold text-[#B9B6AC]">
-            Ranking
-          </span>
-          <Link
-            href="/settings"
-            aria-label="Configurações"
-            className="ml-2 flex h-9 w-9 items-center justify-center rounded-full text-reuse-text hover:bg-[#F0F0EE]"
-          >
-            <GearIcon />
-          </Link>
-        </nav>
-
-        <button
-          type="button"
-          aria-label={open ? "Fechar menu" : "Abrir menu"}
-          aria-expanded={open}
-          onClick={() => setOpen((v) => !v)}
-          className="flex h-9 w-9 items-center justify-center text-reuse-text md:hidden"
-        >
-          {open ? <CloseIcon /> : <BurgerIcon />}
-        </button>
-      </div>
-
-      {open && (
-        <div className="border-t border-reuse-header-border bg-white px-4 pb-3 pt-1 md:hidden">
-          <nav className="flex flex-col">
-            {NAV_ITEMS.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setOpen(false)}
-                className={`rounded-lg px-2.5 py-2.5 text-[15px] font-semibold ${
-                  isActive(item.href) ? "text-reuse-green-dark" : "text-reuse-text"
-                }`}
-              >
-                {item.label}
+    <>
+      <header className="sticky top-0 z-30">
+        {/* Faixa utilitária: só desktop — no mobile, localização/Dicas/Ranking
+            vivem no drawer, pra não empilhar mais uma barra na tela pequena. */}
+        <div className="hidden bg-reuse-green-dark md:block">
+          <div className="mx-auto flex h-9 w-full max-w-5xl items-center justify-between px-4 text-xs font-medium text-white/90">
+            <span>📍 {localizacao ? `Trocas perto de ${localizacao}` : "Trocas sustentáveis no Brasil todo"}</span>
+            <div className="flex items-center gap-4">
+              <Link href="/tips" className="focus-ring rounded hover:text-white hover:underline">
+                Dicas sustentáveis
               </Link>
-            ))}
-            <span className="cursor-default rounded-lg px-2.5 py-2.5 text-[15px] font-semibold text-[#B9B6AC]">
-              Ranking
-            </span>
-            <Link
-              href="/settings"
-              onClick={() => setOpen(false)}
-              className="rounded-lg px-2.5 py-2.5 text-[15px] font-semibold text-reuse-text"
-            >
-              Configurações
-            </Link>
-            <form action={logoutAction}>
-              <button
-                type="submit"
-                className="w-full rounded-lg px-2.5 py-2.5 text-left text-[15px] font-semibold text-red-600"
-              >
-                Sair da conta
-              </button>
-            </form>
-          </nav>
+              <span className="cursor-default text-white/50">Ranking</span>
+            </div>
+          </div>
         </div>
-      )}
-    </header>
+
+        <div className="border-b border-reuse-header-border bg-white/95 backdrop-blur">
+          <div className="mx-auto flex h-16 w-full max-w-5xl items-center justify-between px-4">
+            <Link href="/home" className="shrink-0">
+              <Logo size={30} />
+            </Link>
+
+            <nav className="hidden items-center gap-1 md:flex">
+              {NAV_ITEMS.map((item) => (
+                <Link key={item.href} href={item.href} className={navLinkClass(item.href)}>
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+
+            <div className="hidden items-center gap-2 md:flex">
+              <Link
+                href="/items/new"
+                className="focus-ring rounded-lg bg-reuse-green-dark px-4 py-2 text-[13px] font-bold text-white transition duration-150 hover:brightness-95 active:scale-[0.97]"
+              >
+                + Publicar item
+              </Link>
+              <Link href="/settings">
+                <IconButton icon={<GearIcon />} label="Configurações" />
+              </Link>
+            </div>
+
+            <IconButton
+              icon={open ? <BurgerIconClose /> : <BurgerIcon />}
+              label={open ? "Fechar menu" : "Abrir menu"}
+              aria-expanded={open}
+              onClick={() => setOpen((v) => !v)}
+              className="md:hidden"
+            />
+          </div>
+        </div>
+      </header>
+
+      {/* Fora do <header>: backdrop-filter (backdrop-blur) no header cria um
+          containing block para descendentes `fixed`, o que prenderia o
+          drawer dentro da altura de 64px do header em vez do viewport. */}
+      <MobileNavDrawer
+        open={open}
+        onClose={() => setOpen(false)}
+        userName={userName}
+        userCidade={userCidade}
+        userEstado={userEstado}
+        isActive={isActive}
+        logoutAction={logoutAction}
+      />
+    </>
+  );
+}
+
+function BurgerIconClose() {
+  return (
+    <svg width={20} height={20} viewBox="0 0 16 16" fill="currentColor">
+      <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z" />
+    </svg>
   );
 }

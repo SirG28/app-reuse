@@ -4,7 +4,7 @@ import { useActionState, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createItemAction } from "@/app/actions/items";
 import ScreenHeader from "@/components/ScreenHeader";
-import PrimaryButton from "@/components/PrimaryButton";
+import Button from "@/components/Button";
 import Modal from "@/components/Modal";
 import { inputClass, inputHeightClass, labelClass, textAreaClass } from "@/lib/formStyles";
 import { comprimirImagem } from "@/lib/comprimirImagem";
@@ -50,8 +50,8 @@ export default function PublishItemForm() {
         }
       />
 
-      <form action={formAction} className="px-4 pt-[18px]">
-        <div className="relative mb-6 flex h-[190px] w-full items-center justify-center overflow-hidden bg-[#ECECEC]">
+      <form action={formAction} className="px-4 pt-[18px] md:mx-auto md:max-w-md">
+        <div className="relative mb-6 flex h-[190px] w-full items-center justify-center overflow-hidden bg-reuse-neutral-200">
           {imagem ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -60,7 +60,7 @@ export default function PublishItemForm() {
               className="h-full w-full object-cover"
             />
           ) : (
-            <div className="h-full w-full bg-[#E9E9E9]" />
+            <div className="h-full w-full bg-reuse-surface-sunken" />
           )}
 
           <button
@@ -165,9 +165,9 @@ export default function PublishItemForm() {
         )}
 
         <div className="mt-3.5">
-          <PrimaryButton disabled={pending}>
+          <Button type="submit" disabled={pending}>
             {pending ? "Publicando..." : "+   Publicar item"}
-          </PrimaryButton>
+          </Button>
         </div>
       </form>
 
@@ -190,20 +190,12 @@ export default function PublishItemForm() {
           Ao sair dessa tela, você cancelará a publicação desse item
         </p>
 
-        <button
-          type="button"
-          onClick={() => setShowExitModal(false)}
-          className="mb-2.5 w-full rounded-lg bg-reuse-green-accent py-3.5 text-[13px] font-bold text-white"
-        >
+        <Button type="button" size="sm" fullWidth className="mb-2.5" onClick={() => setShowExitModal(false)}>
           Sim, voltar para publicação
-        </button>
-        <button
-          type="button"
-          onClick={() => router.push("/home")}
-          className="w-full rounded-lg border border-reuse-green-accent py-3.5 text-[13px] font-bold text-reuse-green-accent"
-        >
+        </Button>
+        <Button type="button" variant="secondary" size="sm" fullWidth onClick={() => router.push("/home")}>
           Não, sair e cancelar item
-        </button>
+        </Button>
       </Modal>
     </>
   );

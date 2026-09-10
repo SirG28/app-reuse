@@ -28,12 +28,12 @@ export default function ItemCard({
 
   return (
     <div
-      className={`overflow-hidden rounded-xl border border-[#E2DED6] bg-white ${
+      className={`overflow-hidden rounded-xl border border-reuse-border bg-white transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md ${
         isFluid ? "h-full w-full" : "h-[210px] w-[170px] shrink-0"
       }`}
     >
       <div
-        className={`relative w-full bg-[#F0F0EE] ${
+        className={`relative w-full bg-reuse-surface-sunken ${
           isFluid ? "h-[130px]" : "h-[110px]"
         }`}
       >
@@ -45,7 +45,7 @@ export default function ItemCard({
             className={`h-full w-full object-cover ${trocado ? "grayscale" : ""}`}
           />
         ) : (
-          <div className="h-full w-full bg-[#E9E9E9]" />
+          <div className="h-full w-full bg-reuse-neutral-200" />
         )}
 
         {categoria && (

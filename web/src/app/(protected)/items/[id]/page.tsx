@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/auth";
+import Badge from "@/components/Badge";
 import ItemComments from "@/components/ItemComments";
 import ItemOwnerPanel from "./ItemOwnerPanel";
 import ItemDetailHeader from "./ItemDetailHeader";
@@ -83,79 +84,77 @@ export default async function ItemDetailsPage({
       />
 
       <div className="px-4 pt-4">
-        <div className="mb-4 h-56 w-full overflow-hidden rounded-xl bg-[#F0F0EE]">
-          {item.imagem ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={item.imagem}
-              alt={item.titulo}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <div className="h-full w-full bg-[#E9E9E9]" />
-          )}
-        </div>
-
-        <div className="mb-1.5 flex items-start justify-between gap-2">
-          <div className="flex flex-wrap gap-1.5">
-            <span className="inline-block w-fit rounded-full bg-reuse-avatar-bg px-2.5 py-0.5 text-[11px] font-semibold text-reuse-green-dark">
-              {categoriaLabel(item.categoria)}
-            </span>
-            {item.status === "TROCADO" && (
-              <span className="inline-block w-fit rounded-full bg-reuse-text-secondary/20 px-2.5 py-0.5 text-[11px] font-semibold text-reuse-text-secondary">
-                Trocado
-              </span>
+        <div className="md:flex md:items-start md:gap-6">
+          <div className="mb-4 h-56 w-full shrink-0 overflow-hidden rounded-xl bg-reuse-surface-sunken md:mb-0 md:h-72 md:w-2/5">
+            {item.imagem ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={item.imagem}
+                alt={item.titulo}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="h-full w-full bg-reuse-neutral-200" />
             )}
           </div>
-          {!isOwner && (
-            <FavoriteButton itemId={item.id} favoritadoInicialmente={isFavorited} />
-          )}
+
+          <div className="md:w-3/5">
+            <div className="mb-1.5 flex items-start justify-between gap-2">
+              <div className="flex flex-wrap gap-1.5">
+                <Badge tone="category">{categoriaLabel(item.categoria)}</Badge>
+                {item.status === "TROCADO" && <Badge tone="neutral">Trocado</Badge>}
+              </div>
+              {!isOwner && (
+                <FavoriteButton itemId={item.id} favoritadoInicialmente={isFavorited} />
+              )}
+            </div>
+            <p className="mb-1.5 text-xl font-bold text-reuse-text">
+              {item.titulo}
+            </p>
+            <p className="mb-3 text-sm leading-relaxed text-reuse-text-secondary">
+              {item.descricao}
+            </p>
+            <p className="mb-4 text-[13px] font-semibold text-reuse-green-accent">
+              Troca por: {item.troca}
+            </p>
+
+            {isOwner ? (
+              <ItemOwnerPanel
+                item={{
+                  id: item.id,
+                  titulo: item.titulo,
+                  descricao: item.descricao,
+                  troca: item.troca,
+                  imagem: item.imagem,
+                  categoria: item.categoria,
+                }}
+              />
+            ) : (
+              <div className="mb-6 rounded-xl border border-reuse-border bg-white p-3.5">
+                <p className="mb-1 text-sm text-reuse-text-secondary">
+                  Publicado por{" "}
+                  <span className="font-semibold text-reuse-text">
+                    {item.user.name}
+                  </span>
+                </p>
+                <p className="text-sm text-reuse-text-secondary">
+                  WhatsApp:{" "}
+                  <span className="text-reuse-text">{item.whatsapp}</span>
+                </p>
+              </div>
+            )}
+
+            {!isOwner && item.status === "DISPONIVEL" && (
+              <div className="mb-6">
+                <TradeRequestButton
+                  itemDesejadoId={item.id}
+                  meusItensDisponiveis={meusItensDisponiveis}
+                  solicitacaoPendente={solicitacaoPendente}
+                />
+              </div>
+            )}
+          </div>
         </div>
-        <p className="mb-1.5 text-xl font-bold text-reuse-text">
-          {item.titulo}
-        </p>
-        <p className="mb-3 text-sm leading-relaxed text-reuse-text-secondary">
-          {item.descricao}
-        </p>
-        <p className="mb-4 text-[13px] font-semibold text-reuse-green-accent">
-          Troca por: {item.troca}
-        </p>
-
-        {isOwner ? (
-          <ItemOwnerPanel
-            item={{
-              id: item.id,
-              titulo: item.titulo,
-              descricao: item.descricao,
-              troca: item.troca,
-              imagem: item.imagem,
-              categoria: item.categoria,
-            }}
-          />
-        ) : (
-          <div className="mb-6 rounded-xl border border-reuse-border bg-white p-3.5">
-            <p className="mb-1 text-sm text-reuse-text-secondary">
-              Publicado por{" "}
-              <span className="font-semibold text-reuse-text">
-                {item.user.name}
-              </span>
-            </p>
-            <p className="text-sm text-reuse-text-secondary">
-              WhatsApp:{" "}
-              <span className="text-reuse-text">{item.whatsapp}</span>
-            </p>
-          </div>
-        )}
-
-        {!isOwner && item.status === "DISPONIVEL" && (
-          <div className="mb-6">
-            <TradeRequestButton
-              itemDesejadoId={item.id}
-              meusItensDisponiveis={meusItensDisponiveis}
-              solicitacaoPendente={solicitacaoPendente}
-            />
-          </div>
-        )}
 
         <ItemComments itemId={item.id} isOwner={isOwner} />
       </div>

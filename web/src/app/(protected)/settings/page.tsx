@@ -1,7 +1,7 @@
 import { requireSession } from "@/lib/auth";
 import { logoutAction } from "@/app/actions/auth";
+import Button from "@/components/Button";
 import ScreenHeader from "@/components/ScreenHeader";
-import SecondaryButton from "@/components/SecondaryButton";
 
 export default async function SettingsPage() {
   const user = await requireSession();
@@ -10,7 +10,7 @@ export default async function SettingsPage() {
     <div className="animate-page-in">
       <ScreenHeader title="Configurações" backHref="/profile" />
 
-      <div className="px-5 pt-4">
+      <div className="px-5 pt-4 md:mx-auto md:max-w-md">
         <div className="mb-4 rounded-2xl border border-reuse-border bg-white p-3">
           <h3 className="mb-1.5 text-sm font-bold text-reuse-text">Conta</h3>
 
@@ -45,7 +45,7 @@ export default async function SettingsPage() {
         </div>
 
         <form action={logoutAction}>
-          <SecondaryButton type="submit">Sair da conta</SecondaryButton>
+          <Button type="submit" variant="secondary">Sair da conta</Button>
         </form>
       </div>
     </div>

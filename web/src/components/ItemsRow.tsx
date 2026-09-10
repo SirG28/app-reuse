@@ -48,7 +48,7 @@ export default function ItemsRow({
             <Link
               key={item.id}
               href={`/items/${item.id}`}
-              className="animate-item-in block"
+              className="focus-ring animate-item-in block rounded-xl"
               style={{ animationDelay: `${Math.min(i, 8) * 60}ms` }}
             >
               <ItemCard

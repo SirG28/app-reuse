@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { updateItemAction, deleteItemAction } from "@/app/actions/items";
+import Button from "@/components/Button";
 import Modal from "@/components/Modal";
 import { useToast } from "@/components/ToastProvider";
 import { comprimirImagem } from "@/lib/comprimirImagem";
@@ -62,27 +63,31 @@ export default function ItemOwnerPanel({ item }: { item: Item }) {
       </p>
 
       <div className="flex gap-2.5">
-        <button
+        <Button
           type="button"
+          variant="secondary"
+          size="sm"
+          className="flex items-center justify-center gap-1.5"
           onClick={() => setEditando(true)}
-          className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-reuse-green py-2 text-[13px] font-semibold text-reuse-green"
         >
           <svg width={14} height={14} viewBox="0 0 16 16" fill="currentColor">
             <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zm.854.854L11.207 2l1.5 1.5.793-.793zM10.5 2.207 3 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293L12.5 5.207zm-9 9.5v-.007L4.207 12 3.5 11.293 1.5 11.5z" />
           </svg>
           Editar
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="danger"
+          size="sm"
+          className="flex items-center justify-center gap-1.5"
           onClick={() => setExcluindo(true)}
-          className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-reuse-danger py-2 text-[13px] font-semibold text-reuse-danger"
         >
           <svg width={14} height={14} viewBox="0 0 16 16" fill="currentColor">
             <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
             <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L13.882 4zM2.5 3h11V2h-11z" />
           </svg>
           Excluir
-        </button>
+        </Button>
       </div>
 
       <Modal open={editando} onClose={() => setEditando(false)}>
@@ -91,7 +96,7 @@ export default function ItemOwnerPanel({ item }: { item: Item }) {
         <form action={formAction}>
           <input type="hidden" name="id" value={item.id} />
 
-          <div className="relative mb-3.5 flex h-[150px] w-full items-center justify-center overflow-hidden rounded-lg bg-[#ECECEC]">
+          <div className="relative mb-3.5 flex h-[150px] w-full items-center justify-center overflow-hidden rounded-lg bg-reuse-neutral-200">
             {imagem ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -100,7 +105,7 @@ export default function ItemOwnerPanel({ item }: { item: Item }) {
                 className="h-full w-full object-cover"
               />
             ) : (
-              <div className="h-full w-full bg-[#E9E9E9]" />
+              <div className="h-full w-full bg-reuse-surface-sunken" />
             )}
 
             <button
@@ -178,20 +183,12 @@ export default function ItemOwnerPanel({ item }: { item: Item }) {
           )}
 
           <div className="flex gap-2.5">
-            <button
-              type="button"
-              onClick={() => setEditando(false)}
-              className="flex-1 rounded-lg border border-[#CCCCCC] py-3 text-[13px] font-semibold text-[#666666]"
-            >
+            <Button type="button" variant="ghost" size="sm" className="flex-1" onClick={() => setEditando(false)}>
               Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={pending}
-              className="flex-1 rounded-lg bg-reuse-green-accent py-3 text-[13px] font-bold text-white disabled:opacity-60"
-            >
+            </Button>
+            <Button type="submit" size="sm" className="flex-1" disabled={pending}>
               {pending ? "Salvando..." : "Salvar"}
-            </button>
+            </Button>
           </div>
         </form>
       </Modal>
@@ -208,22 +205,19 @@ export default function ItemOwnerPanel({ item }: { item: Item }) {
         <form
           action={deleteItemAction}
           onSubmit={() => showToast("Item excluído.")}
+          className="mb-2.5"
         >
           <input type="hidden" name="id" value={item.id} />
           <button
             type="submit"
-            className="mb-2.5 w-full rounded-lg bg-reuse-danger py-3.5 text-[13px] font-bold text-white"
+            className="focus-ring w-full rounded-lg bg-reuse-danger py-3.5 text-[13px] font-bold text-white transition duration-150 hover:brightness-95 active:scale-[0.97]"
           >
             Sim, excluir item
           </button>
         </form>
-        <button
-          type="button"
-          onClick={() => setExcluindo(false)}
-          className="w-full rounded-lg border border-reuse-green-accent py-3.5 text-[13px] font-bold text-reuse-green-accent"
-        >
+        <Button type="button" variant="secondary" size="sm" fullWidth onClick={() => setExcluindo(false)}>
           Cancelar
-        </button>
+        </Button>
       </Modal>
     </div>
   );

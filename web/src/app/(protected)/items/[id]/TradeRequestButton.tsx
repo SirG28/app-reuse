@@ -3,8 +3,8 @@
 import { useActionState, useEffect, useState } from "react";
 import Link from "next/link";
 import { createTradeRequestAction } from "@/app/actions/trades";
+import Button from "@/components/Button";
 import Modal from "@/components/Modal";
-import PrimaryButton from "@/components/PrimaryButton";
 import { useToast } from "@/components/ToastProvider";
 import { textAreaClass } from "@/lib/formStyles";
 
@@ -71,9 +71,9 @@ export default function TradeRequestButton({
 
   return (
     <>
-      <PrimaryButton type="button" onClick={() => setAberto(true)}>
+      <Button type="button" onClick={() => setAberto(true)}>
         Solicitar troca
-      </PrimaryButton>
+      </Button>
 
       <Modal open={aberto} onClose={() => setAberto(false)}>
         <p className="mb-4 text-lg font-bold text-reuse-text">
@@ -105,7 +105,7 @@ export default function TradeRequestButton({
                   onChange={() => setItemOfertadoId(item.id)}
                   className="shrink-0"
                 />
-                <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md bg-[#F0F0EE]">
+                <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md bg-reuse-surface-sunken">
                   {item.imagem ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
@@ -114,7 +114,7 @@ export default function TradeRequestButton({
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <div className="h-full w-full bg-[#E9E9E9]" />
+                    <div className="h-full w-full bg-reuse-neutral-200" />
                   )}
                 </div>
                 <span className="truncate text-sm text-reuse-text">
@@ -141,20 +141,12 @@ export default function TradeRequestButton({
           )}
 
           <div className="flex gap-2.5">
-            <button
-              type="button"
-              onClick={() => setAberto(false)}
-              className="flex-1 rounded-lg border border-[#CCCCCC] py-3 text-[13px] font-semibold text-[#666666]"
-            >
+            <Button type="button" variant="ghost" size="sm" className="flex-1" onClick={() => setAberto(false)}>
               Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={pending}
-              className="flex-1 rounded-lg bg-reuse-green-accent py-3 text-[13px] font-bold text-white disabled:opacity-60"
-            >
+            </Button>
+            <Button type="submit" size="sm" className="flex-1" disabled={pending}>
               {pending ? "Enviando..." : "Enviar solicitação"}
-            </button>
+            </Button>
           </div>
         </form>
       </Modal>

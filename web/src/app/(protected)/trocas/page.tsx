@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/auth";
 import { cancelTradeRequestAction } from "@/app/actions/trades";
+import Badge from "@/components/Badge";
 import ScreenHeader from "@/components/ScreenHeader";
 import SectionHeader from "@/components/SectionHeader";
 import TradeRequestActions from "./TradeRequestActions";
@@ -16,28 +17,28 @@ const ITEM_SELECT = {
   imagem: true,
 } as const;
 
-const STATUS_LABEL: Record<string, string> = {
-  PENDENTE: "Pendente",
-  ACEITA: "Aceita",
-  RECUSADA: "Recusada",
-  CANCELADA: "Cancelada",
+const STATUS: Record<string, { label: string; tone: "pending" | "accepted" | "rejected" | "cancelled" }> = {
+  PENDENTE: { label: "Pendente", tone: "pending" },
+  ACEITA: { label: "Aceita", tone: "accepted" },
+  RECUSADA: { label: "Recusada", tone: "rejected" },
+  CANCELADA: { label: "Cancelada", tone: "cancelled" },
 };
 
-function statusClass(status: string) {
-  if (status === "ACEITA") return "bg-reuse-green-accent/15 text-reuse-green-dark";
-  if (status === "PENDENTE") return "bg-reuse-avatar-bg text-reuse-green-dark";
-  return "bg-reuse-text-secondary/15 text-reuse-text-secondary";
+function StatusBadge({ status }: { status: string }) {
+  const info = STATUS[status];
+  if (!info) return null;
+  return <Badge tone={info.tone}>{info.label}</Badge>;
 }
 
 function MiniItem({ item }: { item: { titulo: string; imagem: string | null } }) {
   return (
     <div className="flex flex-1 items-center gap-2 overflow-hidden">
-      <div className="h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-[#F0F0EE]">
+      <div className="h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-reuse-surface-sunken">
         {item.imagem ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={item.imagem} alt={item.titulo} className="h-full w-full object-cover" />
         ) : (
-          <div className="h-full w-full bg-[#E9E9E9]" />
+          <div className="h-full w-full bg-reuse-neutral-200" />
         )}
       </div>
       <p className="truncate text-[13px] font-semibold text-reuse-text">{item.titulo}</p>
@@ -105,11 +106,7 @@ export default async function TrocasPage() {
                 {solicitacao.status === "PENDENTE" ? (
                   <TradeRequestActions tradeRequestId={solicitacao.id} />
                 ) : (
-                  <span
-                    className={`inline-block rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${statusClass(solicitacao.status)}`}
-                  >
-                    {STATUS_LABEL[solicitacao.status]}
-                  </span>
+                  <StatusBadge status={solicitacao.status} />
                 )}
               </div>
             ))}
@@ -144,18 +141,14 @@ export default async function TrocasPage() {
                 </div>
 
                 <div className="flex items-center justify-between gap-2">
-                  <span
-                    className={`inline-block rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${statusClass(solicitacao.status)}`}
-                  >
-                    {STATUS_LABEL[solicitacao.status]}
-                  </span>
+                  <StatusBadge status={solicitacao.status} />
 
                   {solicitacao.status === "PENDENTE" && (
                     <form action={cancelTradeRequestAction}>
                       <input type="hidden" name="tradeRequestId" value={solicitacao.id} />
                       <button
                         type="submit"
-                        className="text-[13px] font-semibold text-reuse-danger"
+                        className="focus-ring rounded text-[13px] font-semibold text-reuse-danger hover:underline"
                       >
                         Cancelar
                       </button>

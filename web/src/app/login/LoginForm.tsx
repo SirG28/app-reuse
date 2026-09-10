@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useActionState, useState } from "react";
 import { loginAction } from "@/app/actions/auth";
 import Logo from "@/components/Logo";
-import PrimaryButton from "@/components/PrimaryButton";
+import Button from "@/components/Button";
 import { inputClass, inputHeightClass } from "@/lib/formStyles";
 
 type Props = {
@@ -21,8 +21,8 @@ export default function LoginForm({ defaultEmail, defaultRemember }: Props) {
     <div className="flex h-dvh flex-col px-4">
       <div className="flex-1">
         <div className="mb-7 mt-[88px]">
-          <Logo markSize={38} className="mb-3" />
-          <p className="text-sm text-[#7B7B7B]">Entre na sua conta:</p>
+          <Logo size={38} className="mb-3" />
+          <p className="text-sm text-reuse-text-secondary">Entre na sua conta:</p>
         </div>
 
         <form id="login-form" action={formAction} className="flex flex-col gap-3">
@@ -57,9 +57,9 @@ export default function LoginForm({ defaultEmail, defaultRemember }: Props) {
               name="remember"
               checked={lembrar}
               onChange={(e) => setLembrar(e.target.checked)}
-              className="h-4 w-4 rounded border border-[#707070] accent-[#639922]"
+              className="h-4 w-4 rounded border border-reuse-neutral-500 accent-reuse-green-dark"
             />
-            <span className="text-sm text-[#7B7B7B]">Lembrar de mim</span>
+            <span className="text-sm text-reuse-text-secondary">Lembrar de mim</span>
           </label>
 
           {state?.error && (
@@ -72,7 +72,7 @@ export default function LoginForm({ defaultEmail, defaultRemember }: Props) {
 
       <div className="pb-[18px]">
         <div className="mb-3.5 flex items-center justify-center gap-1">
-          <span className="text-[13px] text-[#8B8B8B]">
+          <span className="text-[13px] text-reuse-text-secondary">
             Ainda não tem uma conta?
           </span>
           <Link
@@ -83,9 +83,9 @@ export default function LoginForm({ defaultEmail, defaultRemember }: Props) {
           </Link>
         </div>
 
-        <PrimaryButton form="login-form" disabled={pending}>
+        <Button type="submit" form="login-form" disabled={pending}>
           {pending ? "Entrando..." : "Entrar"}
-        </PrimaryButton>
+        </Button>
       </div>
     </div>
   );

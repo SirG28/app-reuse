@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { registerAction } from "@/app/actions/auth";
-import PrimaryButton from "@/components/PrimaryButton";
+import Button from "@/components/Button";
 import ScreenHeader from "@/components/ScreenHeader";
 import { inputClass, inputHeightClass, labelClass } from "@/lib/formStyles";
 import { useCepLookup } from "@/lib/useCepLookup";
@@ -24,7 +24,7 @@ export default function RegisterForm() {
     <>
       <ScreenHeader title="Criar conta" backHref="/login" />
 
-      <form action={formAction} className="px-5 pb-10 pt-[18px]">
+      <form action={formAction} className="px-5 pb-10 pt-[18px] md:mx-auto md:max-w-md">
         <label className={labelClass} htmlFor="name">
           Nome completo *
         </label>
@@ -129,9 +129,9 @@ export default function RegisterForm() {
         )}
 
         <div className="mt-5">
-          <PrimaryButton disabled={pending}>
+          <Button type="submit" disabled={pending}>
             {pending ? "Criando conta..." : "Criar conta"}
-          </PrimaryButton>
+          </Button>
         </div>
       </form>
     </>

@@ -2,6 +2,7 @@ import type { Categoria } from "@prisma/client";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/auth";
+import Chip from "@/components/Chip";
 import ItemCard from "@/components/ItemCard";
 import ScreenHeader from "@/components/ScreenHeader";
 import { CATEGORIAS, categoriaLabel } from "@/lib/categorias";
@@ -9,14 +10,6 @@ import { CATEGORIAS, categoriaLabel } from "@/lib/categorias";
 export const metadata = {
   title: "Todos os itens",
 };
-
-function chipClass(ativo: boolean) {
-  return `shrink-0 rounded-full border px-3.5 py-1.5 text-[13px] font-semibold ${
-    ativo
-      ? "border-reuse-green-dark bg-reuse-green-dark text-white"
-      : "border-reuse-border text-reuse-text-secondary"
-  }`;
-}
 
 export default async function AllItemsPage({
   searchParams,
@@ -52,17 +45,17 @@ export default async function AllItemsPage({
       <ScreenHeader title="Todos os itens" backHref="/home" />
 
       <div className="no-scrollbar flex gap-2 overflow-x-auto px-4 pb-1 pt-4">
-        <Link href="/items" className={chipClass(!categoriaAtiva)}>
+        <Chip active={!categoriaAtiva} href="/items">
           Todos
-        </Link>
+        </Chip>
         {CATEGORIAS.map((c) => (
-          <Link
+          <Chip
             key={c.value}
+            active={categoriaAtiva === c.value}
             href={`/items?categoria=${c.value}`}
-            className={chipClass(categoriaAtiva === c.value)}
           >
             {c.label}
-          </Link>
+          </Chip>
         ))}
       </div>
 
@@ -78,7 +71,7 @@ export default async function AllItemsPage({
         ) : (
           <div className="grid grid-cols-2 gap-3 pb-6 sm:grid-cols-3 lg:grid-cols-4">
             {itens.map((item) => (
-              <Link key={item.id} href={`/items/${item.id}`} className="block">
+              <Link key={item.id} href={`/items/${item.id}`} className="focus-ring block rounded-xl">
                 <ItemCard
                   imagem={item.imagem}
                   titulo={item.titulo}
