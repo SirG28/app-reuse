@@ -1,6 +1,8 @@
-import BottomNav from "@/components/BottomNav";
+import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
 import { ToastProvider } from "@/components/ToastProvider";
 import { requireSession } from "@/lib/auth";
+import { logoutAction } from "@/app/actions/auth";
 
 export default async function ProtectedLayout({
   children,
@@ -13,9 +15,10 @@ export default async function ProtectedLayout({
 
   return (
     <ToastProvider>
-      <div className="min-h-screen bg-reuse-bg pb-28">
-        {children}
-        <BottomNav />
+      <div className="flex min-h-screen flex-col bg-reuse-bg">
+        <SiteHeader logoutAction={logoutAction} />
+        <div className="mx-auto w-full max-w-5xl flex-1">{children}</div>
+        <SiteFooter />
       </div>
     </ToastProvider>
   );

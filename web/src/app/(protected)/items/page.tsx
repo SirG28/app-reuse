@@ -76,7 +76,7 @@ export default async function AllItemsPage({
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3 pb-6">
+          <div className="grid grid-cols-2 gap-3 pb-6 sm:grid-cols-3 lg:grid-cols-4">
             {itens.map((item) => (
               <Link key={item.id} href={`/items/${item.id}`} className="block">
                 <ItemCard

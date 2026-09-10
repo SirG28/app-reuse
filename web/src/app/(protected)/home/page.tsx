@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/auth";
-import HeaderHome from "@/components/HeaderHome";
 import UserSummaryCard from "@/components/UserSummaryCard";
 import SectionHeader from "@/components/SectionHeader";
 import ShortcutCard from "@/components/ShortcutCard";
@@ -57,9 +56,7 @@ export default async function HomePage() {
         <ToastFromQuery />
       </Suspense>
 
-      <HeaderHome pontos={pontos} />
-
-      <div className="px-4 pt-3">
+      <div className="px-4 pt-4">
         <UserSummaryCard name={user.name} itemCount={itemCount} pontos={pontos} />
 
         <SectionHeader title="Atalhos" />

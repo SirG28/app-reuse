@@ -28,6 +28,12 @@ export default function UserSummaryCard({ name, itemCount, pontos }: Props) {
           </p>
           <p className="mt-0.5 text-xs text-[#6E6E6E]">Nível 1</p>
         </div>
+
+        <div className="shrink-0 rounded-full border border-reuse-green bg-[#EEF7DC] px-2.5 py-1">
+          <span className="text-xs font-bold text-reuse-green">
+            ★ {pontos.toLocaleString("pt-BR")} XP
+          </span>
+        </div>
       </div>
 
       <div className="mb-3.5">
