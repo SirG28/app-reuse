@@ -12,13 +12,14 @@ O visual (cores, tipografia, componentes) foi recriado a partir dos mesmos token
 |---|---|---|
 | Login | `/login` | Autenticação por e-mail/senha, com "lembrar de mim" |
 | Cadastro | `/register` | Criação de conta, com autopreenchimento de cidade/estado via ViaCEP a partir do CEP |
-| Home / Feed | `/home` | Resumo do usuário (itens publicados, XP) e feed de itens de outros usuários disponíveis para troca |
+| Home / Feed | `/home` | Resumo do usuário (itens publicados, XP) + várias fileiras de itens: "Itens para trocar" (feed principal), "Novidades" (últimas 48h), "Últimos vistos" e "Seus favoritos" — as três últimas somem quando vazias |
 | Publicar Item | `/items/new` | Formulário para publicar um novo item para troca (com categoria) |
 | Ver Todos os Itens | `/items` | Marketplace: todos os itens de outros usuários, com chips de categoria pra filtrar (`?categoria=...`) |
 | Perfil | `/profile` | Estilo Instagram: avatar, stats (itens/XP), botão "Editar perfil" e a grade dos próprios itens publicados logo abaixo — não existe mais uma tela separada "Meus Itens" |
 | Configurações | `/settings` | Dados da conta (e-mail, cidade, sessão) e "Sair da conta" — acessível pelo ícone de engrenagem no Perfil |
 | Dicas Sustentáveis | `/tips` | Lista de notícias/artigos sobre sustentabilidade e reuso, consumidos de uma fonte externa |
-| Detalhe do Item | `/items/[id]` | Dados completos do item + comentários entre usuários (API Route + SWR). Se o item for seu, mostra um painel de editar/excluir (com troca de foto) no lugar dos dados de contato |
+| Detalhe do Item | `/items/[id]` | Dados completos do item + comentários entre usuários (API Route + SWR). Se o item for seu, mostra um painel de editar/excluir (com troca de foto) no lugar dos dados de contato. Se não for, mostra um botão de favoritar, o botão "Solicitar troca" e registra a visita em "Últimos vistos" |
+| Trocas | `/trocas` | Solicitações de troca: aba "Recebidas" (pelos seus itens, com Aceitar/Recusar) e "Enviadas" (as que você fez, com opção de cancelar enquanto pendente) — acessível pelo menu inferior e pelo atalho "Realizar Troca" na Home |
 
 `/login`, `/register` e `/` são públicas; as demais exigem sessão válida (redirecionam para `/login` caso contrário).
 
@@ -30,12 +31,13 @@ O visual (cores, tipografia, componentes) foi recriado a partir dos mesmos token
 |---|---|
 | Cadastro | `prisma.user.create` (com senha já hasheada via bcrypt) após checar duplicidade de e-mail com `prisma.user.findUnique` |
 | Login | `prisma.user.findUnique` por e-mail + `prisma.session.create` (sessão no banco, referenciada por cookie `httpOnly`) |
-| Home/Feed | `prisma.item.findMany` (itens de outros usuários, mais recentes primeiro) + `prisma.item.count` (itens do próprio usuário, usado no card de resumo) |
+| Home/Feed | `prisma.item.findMany` (itens de outros usuários, mais recentes primeiro; e de novo filtrado por `createdAt` para "Novidades") + `prisma.item.count` + `prisma.itemView.findMany`/`prisma.favorite.findMany` (com `include: { item: true }`) para "Últimos vistos"/"Seus favoritos" |
 | Publicar Item | `prisma.item.create` vinculado ao usuário da sessão, incluindo `categoria` |
 | Ver Todos os Itens | `prisma.item.findMany` filtrando por `categoria` via query string (`?categoria=...`), excluindo os itens do próprio usuário |
 | Perfil | `prisma.item.findMany` (itens do próprio usuário, exibidos na grade) + `prisma.user.update` via `updateProfileAction` (editar nome/CEP/cidade/estado) |
 | Configurações | Leitura do usuário via sessão (`prisma.session.findUnique` com `include: { user: true }`) |
-| Detalhe do Item | `prisma.item.findUnique` (dados do item) + `prisma.comment.findMany`/`prisma.comment.create` via API Route (`/api/items/[id]/comments`), consumida no cliente com SWR. Se o item pertence ao usuário da sessão (`item.userId === user.id`), também expõe `prisma.item.update` / `prisma.item.delete` (edição, incluindo foto, e exclusão) |
+| Detalhe do Item | `prisma.item.findUnique` (dados do item) + `prisma.comment.findMany`/`prisma.comment.create` via API Route (`/api/items/[id]/comments`), consumida no cliente com SWR. Se o item pertence ao usuário da sessão (`item.userId === user.id`), também expõe `prisma.item.update` / `prisma.item.delete` (edição, incluindo foto, e exclusão). Se não pertence, `prisma.itemView.upsert` registra a visita e `prisma.favorite` (via `toggleFavoriteAction`) controla o botão de favoritar |
+| Trocas | `prisma.tradeRequest.create` (solicitar, validando que o item ofertado pertence a quem pede e ambos estão `DISPONIVEL`) + `prisma.$transaction` ao aceitar (marca os dois itens como `TROCADO` e recusa em lote qualquer outro pedido pendente envolvendo esses itens) |
 | Logout | `prisma.session.deleteMany` (invalida a sessão no banco) |
 
 ---
@@ -45,9 +47,12 @@ O visual (cores, tipografia, componentes) foi recriado a partir dos mesmos token
 | Tabela | Campos principais | Objetivo |
 |---|---|---|
 | `User` | name, email (único), passwordHash, cep, cidade, estado | Conta do usuário. Espelha o tipo `User` do mobile, mas com senha hasheada (o mobile grava em texto puro no MockAPI, uma limitação documentada no README raiz) |
-| `Item` | titulo, descricao, troca, categoria, imagem, whatsapp, userId | Item publicado para troca. Espelha o tipo `Item` do mobile. `categoria` é um enum Prisma (`Categoria`, `@default(OUTROS)`) — 9 categorias fixas + "Outros" |
+| `Item` | titulo, descricao, troca, categoria, status, imagem, whatsapp, userId | Item publicado para troca. Espelha o tipo `Item` do mobile. `categoria` é um enum Prisma (`Categoria`, `@default(OUTROS)`) — 9 categorias fixas + "Outros". `status` (`DISPONIVEL`/`TROCADO`) controla se o item ainda aparece no marketplace |
 | `Session` | token (único), userId, expiresAt | Sessão de autenticação da web. O mobile guarda sessão local via AsyncStorage; na web isso não é seguro, então o estado de login é validado no servidor a cada requisição via esta tabela + cookie `httpOnly` |
 | `Comment` | conteudo, itemId, userId, createdAt, parentId | Comentário de um usuário logado em um item publicado (área nova da Fase 6, detalhe do item). `parentId` (auto-relação) marca uma resposta a outro comentário — um nível só de profundidade |
+| `ItemView` | itemId, userId, viewedAt | "Último visto": uma linha por (usuário, item), atualizada (não duplicada) a cada nova visita ao detalhe (`@@unique([userId, itemId])`) |
+| `Favorite` | itemId, userId, createdAt | Item salvo por um usuário pra ver depois; toggle simples (criar/apagar) via `toggleFavoriteAction` |
+| `TradeRequest` | itemDesejadoId, itemOfertadoId, solicitanteId, mensagem, status, createdAt | Pedido de troca: alguém oferece um item próprio (`itemOfertado`) por um item de outra pessoa (`itemDesejado`). `status` é `PENDENTE`/`ACEITA`/`RECUSADA`/`CANCELADA` |
 
 ---
 
@@ -69,6 +74,10 @@ Nova área da plataforma, construída para aplicar os conceitos de Next.js estud
 - [x] **Refinamento — títulos e layout do Perfil**: o cabeçalho de `/profile` virou um rótulo fixo ("Meu Perfil"), já que o nome da pessoa saiu de lá e passou a fazer parte do bloco de informações ao lado da foto (nome, cidade/estado, itens e XP juntos, aproveitando melhor o espaço horizontal em vez de ficarem espalhados).
 - [x] **Refinamento — marketplace por categorias**: `Item` ganhou um campo `categoria` (enum Prisma, 9 categorias fixas + "Outros" como padrão para os itens já existentes); nova página `/items` ("Ver todos", antes um link morto na Home) com chips de categoria pra filtrar via query string; `ItemCard` passou a exibir um badge da categoria em todo lugar onde aparece (Home, Perfil, `/items`). **Decisão de produto:** categoria é só filtro de navegação — trocas continuam livres entre categorias (o campo `troca` já é texto livre hoje, e restringir por categoria pioraria o problema clássico do escambo, a "dupla coincidência de desejos", sem necessidade real).
 - [x] **Fase 5 — Deploy**: script `prebuild` (`prisma migrate deploy && prisma generate`) adicionado ao `package.json`. Sem ele, a Vercel cacheia `node_modules` entre deploys e o Prisma Client pode ficar desatualizado em relação ao `schema.prisma` (foi exatamente o que quebrou o build depois que os models `Comment` e o enum `Categoria` foram adicionados — `npm run build` local confirmou a correção, gerando todas as rotas sem erro de TypeScript).
+- [x] **Refinamento — grid de "Ver todos"**: `ItemCard` ganhou uma prop `variant` (`"fixed"` pro scroll horizontal de 170px usado em Home/Perfil, `"fluid"` pra preencher a largura do grid); `/items` virou `grid grid-cols-2` com cards `fluid`, 2 por linha ocupando toda a largura.
+- [x] **Refinamento — mais seções na Home**: novas tabelas `ItemView` (histórico de "últimos vistos", uma linha por usuário+item) e `Favorite` (itens salvos); componente `ItemsRow` extraído pra evitar repetir a mesma fileira de itens 4 vezes; seções "Novidades" (itens de outros usuários publicados nas últimas 48h), "Últimos vistos" e "Seus favoritos" — essas duas últimas somem da Home quando vazias, ao contrário do feed principal que sempre mostra um estado vazio explícito. Botão de favoritar (♥/♡) adicionado ao detalhe do item, só para não-donos.
+- [x] **Refinamento — solicitação de troca**: nova tabela `TradeRequest` + enum `ItemStatus` (`DISPONIVEL`/`TROCADO`) no `Item`. No detalhe do item (não-dono), botão "Solicitar troca" abre um modal pra escolher qual item próprio oferecer (obrigatório — reforça o conceito de troca de verdade, não só "quero de graça") e uma mensagem opcional. Nova página `/trocas` (menu inferior e atalho "Realizar Troca" da Home, antes ambos mortos) com abas "Recebidas" (Aceitar/Recusar) e "Enviadas" (Cancelar). Ao aceitar, os dois itens envolvidos ficam `TROCADO` numa transação (`prisma.$transaction`) — somem do marketplace automaticamente — e qualquer outro pedido pendente envolvendo qualquer um dos dois itens é recusado em lote, já que deixaram de estar disponíveis. `ItemCard` ganhou um selo "Trocado" (com a imagem em `grayscale`) pra esses itens na grade do Perfil.
+- [x] **Refinamento — dados de demonstração**: `prisma/seed.ts` reescrito para remover contas de teste avulsas (cadastros feitos manualmente durante o desenvolvimento) e popular só as duas contas documentadas (`ana@reuse.com`, `bruno@reuse.com`) com 12 itens no total — 6 por usuária/usuário, imagens reais do Unsplash, descrições completas, cobrindo a maioria das categorias — mais 10 comentários simulados (incluindo respostas do dono a perguntas de terceiros). Rodar de novo com `npx prisma db seed` reseta o conteúdo dessas duas contas sempre para esse mesmo estado curado.
 - [ ] **Fase 6 — Entrega**: PDF com descritivo da área, link do repositório público e link de produção.
 
 Cada fase é implementada e validada antes de avançar para a próxima.

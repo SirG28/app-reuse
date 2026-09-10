@@ -19,6 +19,7 @@ export default async function ProfilePage() {
       troca: true,
       imagem: true,
       categoria: true,
+      status: true,
     },
   });
 
@@ -106,6 +107,7 @@ export default async function ProfilePage() {
                   descricao={item.descricao}
                   troca={item.troca}
                   categoria={item.categoria}
+                  trocado={item.status === "TROCADO"}
                 />
               </Link>
             ))}

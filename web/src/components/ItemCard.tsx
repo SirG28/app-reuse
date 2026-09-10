@@ -7,6 +7,12 @@ type Props = {
   descricao: string;
   troca: string;
   categoria?: Categoria;
+  // "fixed" = card de 170px pra scroll horizontal (Home, Perfil).
+  // "fluid" = preenche a largura do container, pra grids (ex.: /items).
+  variant?: "fixed" | "fluid";
+  // Mostrado só na grade do próprio Perfil, pra saber quais itens já saíram
+  // de circulação.
+  trocado?: boolean;
 };
 
 export default function ItemCard({
@@ -15,16 +21,28 @@ export default function ItemCard({
   descricao,
   troca,
   categoria,
+  variant = "fixed",
+  trocado = false,
 }: Props) {
+  const isFluid = variant === "fluid";
+
   return (
-    <div className="h-[210px] w-[170px] shrink-0 overflow-hidden rounded-xl border border-[#E2DED6] bg-white">
-      <div className="relative h-[110px] w-full bg-[#F0F0EE]">
+    <div
+      className={`overflow-hidden rounded-xl border border-[#E2DED6] bg-white ${
+        isFluid ? "h-full w-full" : "h-[210px] w-[170px] shrink-0"
+      }`}
+    >
+      <div
+        className={`relative w-full bg-[#F0F0EE] ${
+          isFluid ? "h-[130px]" : "h-[110px]"
+        }`}
+      >
         {imagem ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={imagem}
             alt={titulo}
-            className="h-full w-full object-cover"
+            className={`h-full w-full object-cover ${trocado ? "grayscale" : ""}`}
           />
         ) : (
           <div className="h-full w-full bg-[#E9E9E9]" />
@@ -33,6 +51,12 @@ export default function ItemCard({
         {categoria && (
           <span className="absolute left-1.5 top-1.5 truncate rounded-full bg-white/90 px-1.5 py-0.5 text-[9px] font-semibold text-reuse-green-dark shadow-sm">
             {categoriaLabel(categoria)}
+          </span>
+        )}
+
+        {trocado && (
+          <span className="absolute right-1.5 top-1.5 truncate rounded-full bg-black/70 px-1.5 py-0.5 text-[9px] font-semibold text-white">
+            Trocado
           </span>
         )}
       </div>

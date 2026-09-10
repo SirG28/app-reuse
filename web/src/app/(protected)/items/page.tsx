@@ -33,6 +33,7 @@ export default async function AllItemsPage({
   const itens = await prisma.item.findMany({
     where: {
       userId: { not: user.id },
+      status: "DISPONIVEL",
       ...(categoriaAtiva ? { categoria: categoriaAtiva as Categoria } : {}),
     },
     orderBy: { createdAt: "desc" },
@@ -75,7 +76,7 @@ export default async function AllItemsPage({
             </p>
           </div>
         ) : (
-          <div className="flex flex-wrap gap-3 pb-6">
+          <div className="grid grid-cols-2 gap-3 pb-6">
             {itens.map((item) => (
               <Link key={item.id} href={`/items/${item.id}`} className="block">
                 <ItemCard
@@ -84,6 +85,7 @@ export default async function AllItemsPage({
                   descricao={item.descricao}
                   troca={item.troca}
                   categoria={item.categoria}
+                  variant="fluid"
                 />
               </Link>
             ))}

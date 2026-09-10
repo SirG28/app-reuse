@@ -1,22 +1,50 @@
 import { Suspense } from "react";
-import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/auth";
 import HeaderHome from "@/components/HeaderHome";
 import UserSummaryCard from "@/components/UserSummaryCard";
 import SectionHeader from "@/components/SectionHeader";
 import ShortcutCard from "@/components/ShortcutCard";
-import ItemCard from "@/components/ItemCard";
+import ItemsRow from "@/components/ItemsRow";
 import ToastFromQuery from "./ToastFromQuery";
+
+const DOIS_DIAS_MS = 2 * 24 * 60 * 60 * 1000;
+
+// Fora do corpo do componente: o lint de pureza do React não permite chamar
+// APIs impuras (Date.now) direto no render de um componente/hook.
+function dataLimiteNovidades() {
+  return new Date(Date.now() - DOIS_DIAS_MS);
+}
 
 export default async function HomePage() {
   const user = await requireSession();
 
-  const [itemCount, itens] = await Promise.all([
+  const [itemCount, itens, novidades, vistos, favoritos] = await Promise.all([
     prisma.item.count({ where: { userId: user.id } }),
     prisma.item.findMany({
-      where: { userId: { not: user.id } },
+      where: { userId: { not: user.id }, status: "DISPONIVEL" },
       orderBy: { createdAt: "desc" },
+    }),
+    prisma.item.findMany({
+      where: {
+        userId: { not: user.id },
+        status: "DISPONIVEL",
+        createdAt: { gte: dataLimiteNovidades() },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 10,
+    }),
+    prisma.itemView.findMany({
+      where: { userId: user.id },
+      orderBy: { viewedAt: "desc" },
+      take: 10,
+      include: { item: true },
+    }),
+    prisma.favorite.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: "desc" },
+      take: 10,
+      include: { item: true },
     }),
   ]);
 
@@ -48,42 +76,34 @@ export default async function HomePage() {
             icon="💡"
             href="/tips"
           />
-          <ShortcutCard title="Realizar Troca" xp="+ 100 XP" icon="⇄" />
+          <ShortcutCard
+            title="Realizar Troca"
+            xp="+ 100 XP"
+            icon="⇄"
+            href="/trocas"
+          />
           <ShortcutCard title="Ranking" xp="+ 20 XP" icon="🏆" />
         </div>
 
-        <SectionHeader
+        <ItemsRow
           title="Itens para trocar"
+          itens={itens}
           actionText="Ver todos"
           actionHref="/items"
+          emptyMessage="Nenhum item disponível ainda."
         />
 
-        {itens.length === 0 ? (
-          <div className="items-center px-6 py-6 text-center">
-            <p className="text-sm text-reuse-text-secondary">
-              Nenhum item disponível ainda.
-            </p>
-          </div>
-        ) : (
-          <div className="no-scrollbar flex gap-3 overflow-x-auto pb-1">
-            {itens.map((item, i) => (
-              <Link
-                key={item.id}
-                href={`/items/${item.id}`}
-                className="animate-item-in block"
-                style={{ animationDelay: `${Math.min(i, 8) * 60}ms` }}
-              >
-                <ItemCard
-                  imagem={item.imagem}
-                  titulo={item.titulo}
-                  descricao={item.descricao}
-                  troca={item.troca}
-                  categoria={item.categoria}
-                />
-              </Link>
-            ))}
-          </div>
-        )}
+        <ItemsRow title="Novidades" itens={novidades} />
+
+        <ItemsRow
+          title="Últimos vistos"
+          itens={vistos.map((v) => v.item)}
+        />
+
+        <ItemsRow
+          title="Seus favoritos"
+          itens={favoritos.map((f) => f.item)}
+        />
       </div>
     </div>
   );
