@@ -13,7 +13,7 @@ export default function SiteFooter({ logoutAction }: Props) {
     <footer className="mt-10 border-t-4 border-reuse-green-dark bg-reuse-footer-bg">
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-10 text-center sm:flex-row sm:justify-between sm:text-left">
         <div className="flex flex-col items-center gap-2.5 sm:items-start">
-          <Logo size={24} variant="light" />
+          <Logo size={30} variant="light" />
           <p className="max-w-[220px] text-sm text-reuse-footer-text-secondary">
             Dando uma segunda vida aos seus objetos.
           </p>

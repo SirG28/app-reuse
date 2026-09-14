@@ -22,7 +22,7 @@ export default async function ProtectedLayout({
           userEstado={user.estado}
           logoutAction={logoutAction}
         />
-        <div className="mx-auto w-full max-w-5xl flex-1">{children}</div>
+        <main className="mx-auto w-full max-w-5xl flex-1">{children}</main>
         <SiteFooter logoutAction={logoutAction} />
       </div>
     </ToastProvider>

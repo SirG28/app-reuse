@@ -1,9 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useState } from "react";
 import { registerAction } from "@/app/actions/auth";
 import Button from "@/components/Button";
-import ScreenHeader from "@/components/ScreenHeader";
+import Logo from "@/components/Logo";
+import PasswordInput from "@/components/PasswordInput";
 import { inputClass, inputHeightClass, labelClass } from "@/lib/formStyles";
 import { useCepLookup } from "@/lib/useCepLookup";
 
@@ -21,10 +23,18 @@ export default function RegisterForm() {
   } = useCepLookup(cep);
 
   return (
-    <>
-      <ScreenHeader title="Criar conta" backHref="/login" />
+    <div>
+      <Logo size={34} className="mb-6 md:hidden" />
 
-      <form action={formAction} className="px-5 pb-10 pt-[18px] md:mx-auto md:max-w-md">
+      <h1 className="mb-1 text-2xl font-bold text-reuse-text">Criar conta</h1>
+      <p className="mb-6 text-sm text-reuse-text-secondary">
+        Já tem uma conta?{" "}
+        <Link href="/login" className="font-semibold text-reuse-green underline">
+          Entrar
+        </Link>
+      </p>
+
+      <form action={formAction}>
         <label className={labelClass} htmlFor="name">
           Nome completo *
         </label>
@@ -50,22 +60,20 @@ export default function RegisterForm() {
         <label className={labelClass} htmlFor="password">
           Senha *
         </label>
-        <input
+        <PasswordInput
           id="password"
           name="password"
-          type="password"
-          className={`${inputClass} ${inputHeightClass} mb-3.5`}
+          className="mb-3.5"
           placeholder="Mínimo 4 caracteres"
         />
 
         <label className={labelClass} htmlFor="confirmPassword">
           Confirmar senha *
         </label>
-        <input
+        <PasswordInput
           id="confirmPassword"
           name="confirmPassword"
-          type="password"
-          className={`${inputClass} ${inputHeightClass} mb-3.5`}
+          className="mb-3.5"
           placeholder="Repita a senha"
         />
 
@@ -134,6 +142,6 @@ export default function RegisterForm() {
           </Button>
         </div>
       </form>
-    </>
+    </div>
   );
 }

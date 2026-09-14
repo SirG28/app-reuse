@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { toggleFavoriteAction } from "@/app/actions/interactions";
+import { IconHeart } from "@/components/icons";
 
 export default function FavoriteButton({
   itemId,
@@ -26,11 +27,11 @@ export default function FavoriteButton({
       onClick={handleClick}
       disabled={isPending}
       aria-label={favoritado ? "Remover dos favoritos" : "Salvar item"}
-      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-reuse-border bg-white text-lg disabled:opacity-60"
+      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-reuse-border bg-white disabled:opacity-60 ${
+        favoritado ? "text-reuse-danger" : "text-reuse-text-secondary"
+      }`}
     >
-      <span className={favoritado ? "text-reuse-danger" : "text-reuse-text-secondary"}>
-        {favoritado ? "♥" : "♡"}
-      </span>
+      <IconHeart size={17} filled={favoritado} />
     </button>
   );
 }

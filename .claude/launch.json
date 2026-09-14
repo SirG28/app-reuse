@@ -11,7 +11,7 @@
     {
       "name": "reuse-mobile-web",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "web"],
+      "runtimeArgs": ["--prefix", "mobile", "run", "web"],
       "port": 8081,
       "autoPort": true
     }

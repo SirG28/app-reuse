@@ -1,8 +1,8 @@
 # ReUse! Web
 
-Plataforma web da **ReUse!**, construída em **Next.js (App Router)** com **Prisma ORM** e **PostgreSQL**. É uma via de acesso adicional ao [app mobile](../README.md) (React Native/Expo), cobrindo o núcleo de autenticação e publicação/listagem de itens — não uma cópia integral do app.
+Plataforma web da **ReUse!**, construída em **Next.js (App Router)** com **Prisma ORM** e **PostgreSQL**. É uma via de acesso adicional ao [app mobile](../mobile/README.md) (React Native/Expo), cobrindo o núcleo de autenticação e publicação/listagem de itens — não uma cópia integral do app.
 
-O visual (cores, tipografia, componentes) foi recriado a partir dos mesmos tokens usados no mobile (`constants/theme.ts` e os `StyleSheet` de `app/*.tsx`), para manter a identidade da marca consistente entre as duas plataformas.
+O visual (cores, tipografia, componentes) foi recriado a partir dos mesmos tokens usados no mobile (`mobile/constants/theme.ts` e os `StyleSheet` de `mobile/app/*.tsx`), para manter a identidade da marca consistente entre as duas plataformas.
 
 ---
 
@@ -78,6 +78,7 @@ Nova área da plataforma, construída para aplicar os conceitos de Next.js estud
 - [x] **Refinamento — mais seções na Home**: novas tabelas `ItemView` (histórico de "últimos vistos", uma linha por usuário+item) e `Favorite` (itens salvos); componente `ItemsRow` extraído pra evitar repetir a mesma fileira de itens 4 vezes; seções "Novidades" (itens de outros usuários publicados nas últimas 48h), "Últimos vistos" e "Seus favoritos" — essas duas últimas somem da Home quando vazias, ao contrário do feed principal que sempre mostra um estado vazio explícito. Botão de favoritar (♥/♡) adicionado ao detalhe do item, só para não-donos.
 - [x] **Refinamento — solicitação de troca**: nova tabela `TradeRequest` + enum `ItemStatus` (`DISPONIVEL`/`TROCADO`) no `Item`. No detalhe do item (não-dono), botão "Solicitar troca" abre um modal pra escolher qual item próprio oferecer (obrigatório — reforça o conceito de troca de verdade, não só "quero de graça") e uma mensagem opcional. Nova página `/trocas` (menu inferior e atalho "Realizar Troca" da Home, antes ambos mortos) com abas "Recebidas" (Aceitar/Recusar) e "Enviadas" (Cancelar). Ao aceitar, os dois itens envolvidos ficam `TROCADO` numa transação (`prisma.$transaction`) — somem do marketplace automaticamente — e qualquer outro pedido pendente envolvendo qualquer um dos dois itens é recusado em lote, já que deixaram de estar disponíveis. `ItemCard` ganhou um selo "Trocado" (com a imagem em `grayscale`) pra esses itens na grade do Perfil.
 - [x] **Refinamento — dados de demonstração**: `prisma/seed.ts` reescrito para remover contas de teste avulsas (cadastros feitos manualmente durante o desenvolvimento) e popular só as duas contas documentadas (`ana@reuse.com`, `bruno@reuse.com`) com 12 itens no total — 6 por usuária/usuário, imagens reais do Unsplash, descrições completas, cobrindo a maioria das categorias — mais 10 comentários simulados (incluindo respostas do dono a perguntas de terceiros). Rodar de novo com `npx prisma db seed` reseta o conteúdo dessas duas contas sempre para esse mesmo estado curado.
+- [x] **Refinamento — catálogo maior pra demonstração**: seed expandido de 2 para 4 contas (`ana@reuse.com`, `bruno@reuse.com`, `camila@reuse.com`, `diego@reuse.com`, mesma senha `reuse123`) e de 12 para 22 itens, cobrindo também as categorias que ainda não tinham exemplo (Brinquedos e Infantil, Outros) — todas com foto real do Unsplash.
 - [ ] **Fase 6 — Entrega**: PDF com descritivo da área, link do repositório público e link de produção.
 
 Cada fase é implementada e validada antes de avançar para a próxima.
@@ -139,10 +140,16 @@ Acesse [http://localhost:3000](http://localhost:3000).
 
 ### Login de teste (criado pelo seed)
 
-- `ana@reuse.com` / senha `reuse123`
-- `bruno@reuse.com` / senha `reuse123`
+Todas as contas usam a senha `reuse123`:
 
-Cada uma tem itens publicados visíveis no feed da outra.
+| E-mail | Nome | Cidade |
+|---|---|---|
+| `ana@reuse.com` | Ana Carolina | São Paulo - SP |
+| `bruno@reuse.com` | Bruno Ferreira | Rio de Janeiro - RJ |
+| `camila@reuse.com` | Camila Rocha | Belo Horizonte - MG |
+| `diego@reuse.com` | Diego Santos | Curitiba - PR |
+
+22 itens publicados no total (todos com foto), distribuídos entre as quatro contas e cobrindo todas as categorias do marketplace — cada uma vê no feed os itens publicados pelas outras três.
 
 ### Inspecionar o banco
 

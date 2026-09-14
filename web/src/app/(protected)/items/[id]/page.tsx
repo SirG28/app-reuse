@@ -104,7 +104,18 @@ export default async function ItemDetailsPage({
                 <Badge tone="category">{categoriaLabel(item.categoria)}</Badge>
                 {item.status === "TROCADO" && <Badge tone="neutral">Trocado</Badge>}
               </div>
-              {!isOwner && (
+              {isOwner ? (
+                <ItemOwnerPanel
+                  item={{
+                    id: item.id,
+                    titulo: item.titulo,
+                    descricao: item.descricao,
+                    troca: item.troca,
+                    imagem: item.imagem,
+                    categoria: item.categoria,
+                  }}
+                />
+              ) : (
                 <FavoriteButton itemId={item.id} favoritadoInicialmente={isFavorited} />
               )}
             </div>
@@ -118,18 +129,7 @@ export default async function ItemDetailsPage({
               Troca por: {item.troca}
             </p>
 
-            {isOwner ? (
-              <ItemOwnerPanel
-                item={{
-                  id: item.id,
-                  titulo: item.titulo,
-                  descricao: item.descricao,
-                  troca: item.troca,
-                  imagem: item.imagem,
-                  categoria: item.categoria,
-                }}
-              />
-            ) : (
+            {!isOwner && (
               <div className="mb-6 rounded-xl border border-reuse-border bg-white p-3.5">
                 <p className="mb-1 text-sm text-reuse-text-secondary">
                   Publicado por{" "}

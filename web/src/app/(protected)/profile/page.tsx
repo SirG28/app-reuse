@@ -2,36 +2,39 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/auth";
 import EditProfileModal from "./EditProfileModal";
-import IconButton from "@/components/IconButton";
+import { buttonClass } from "@/components/Button";
+import { iconButtonClass } from "@/components/IconButton";
 import ItemCard from "@/components/ItemCard";
 import ScreenHeader from "@/components/ScreenHeader";
 import SectionHeader from "@/components/SectionHeader";
-
-function GearIcon() {
-  return (
-    <svg width={20} height={20} viewBox="0 0 16 16" fill="currentColor">
-      <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z" />
-    </svg>
-  );
-}
+import { IconGear, IconPlus } from "@/components/icons";
 
 export default async function ProfilePage() {
   const user = await requireSession();
   const inicial = user.name?.charAt(0).toUpperCase() ?? "U";
 
-  const itens = await prisma.item.findMany({
-    where: { userId: user.id },
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      titulo: true,
-      descricao: true,
-      troca: true,
-      imagem: true,
-      categoria: true,
-      status: true,
-    },
-  });
+  const itemSelect = {
+    id: true,
+    titulo: true,
+    descricao: true,
+    troca: true,
+    imagem: true,
+    categoria: true,
+    status: true,
+  } as const;
+
+  const [itens, favoritos] = await Promise.all([
+    prisma.item.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: "desc" },
+      select: itemSelect,
+    }),
+    prisma.favorite.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: "desc" },
+      include: { item: { select: itemSelect } },
+    }),
+  ]);
 
   // Mesma regra de XP do mobile: +50 XP por item publicado (services/itemsService.ts + app/PublicItem.tsx)
   const pontos = itens.length * 50;
@@ -42,8 +45,8 @@ export default async function ProfilePage() {
         title="Meu Perfil"
         backHref="/home"
         right={
-          <Link href="/settings" aria-label="Configurações">
-            <IconButton icon={<GearIcon />} label="Configurações" />
+          <Link href="/settings" aria-label="Configurações" className={iconButtonClass()}>
+            <IconGear size={20} />
           </Link>
         }
       />
@@ -80,14 +83,23 @@ export default async function ProfilePage() {
           </div>
         </div>
 
-        <EditProfileModal
-          user={{
-            name: user.name,
-            cep: user.cep,
-            cidade: user.cidade,
-            estado: user.estado,
-          }}
-        />
+        <div className="mt-3 flex gap-2.5">
+          <EditProfileModal
+            user={{
+              name: user.name,
+              cep: user.cep,
+              cidade: user.cidade,
+              estado: user.estado,
+            }}
+          />
+          <Link
+            href="/items/new"
+            className={buttonClass({ size: "sm", className: "flex-1 items-center gap-1.5" })}
+          >
+            <IconPlus size={14} />
+            Publicar item
+          </Link>
+        </div>
       </div>
 
       <div className="mt-5 border-t border-reuse-header-border px-4 pt-4">
@@ -102,6 +114,34 @@ export default async function ProfilePage() {
         ) : (
           <div className="grid grid-cols-2 gap-3 pb-4 sm:grid-cols-3 lg:grid-cols-4">
             {itens.map((item) => (
+              <Link key={item.id} href={`/items/${item.id}`} className="focus-ring block rounded-xl">
+                <ItemCard
+                  imagem={item.imagem}
+                  titulo={item.titulo}
+                  descricao={item.descricao}
+                  troca={item.troca}
+                  categoria={item.categoria}
+                  trocado={item.status === "TROCADO"}
+                  variant="fluid"
+                />
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="mt-5 border-t border-reuse-header-border px-4 pt-4">
+        <SectionHeader title="Favoritos" />
+
+        {favoritos.length === 0 ? (
+          <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
+            <p className="text-[15px] text-reuse-text-secondary">
+              Você ainda não favoritou nenhum item.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-3 pb-4 sm:grid-cols-3 lg:grid-cols-4">
+            {favoritos.map(({ item }) => (
               <Link key={item.id} href={`/items/${item.id}`} className="focus-ring block rounded-xl">
                 <ItemCard
                   imagem={item.imagem}

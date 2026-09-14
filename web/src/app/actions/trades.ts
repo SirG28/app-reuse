@@ -81,24 +81,34 @@ export async function acceptTradeRequestAction(formData: FormData) {
   const tradeRequestId = String(formData.get("tradeRequestId") || "");
 
   const solicitacao = await carregarSolicitacaoComoDono(tradeRequestId, user.id);
-  if (!solicitacao || solicitacao.status !== "PENDENTE") {
+  if (!solicitacao) {
     return;
   }
 
   const idsEnvolvidos = [solicitacao.itemDesejadoId, solicitacao.itemOfertadoId];
 
-  await prisma.$transaction([
-    prisma.tradeRequest.update({
-      where: { id: solicitacao.id },
+  // O `updateMany` com `status: "PENDENTE"` no where funciona como trava:
+  // se dois "Aceitar" chegarem quase juntos para pedidos que compartilham um
+  // item, só o primeiro encontra a linha ainda PENDENTE e `count` vem 1; o
+  // segundo vê `count === 0` e aborta a transação (o read solto de antes do
+  // transaction, feito em `carregarSolicitacaoComoDono`, não bastava sozinho).
+  const aceito = await prisma.$transaction(async (tx) => {
+    const resultado = await tx.tradeRequest.updateMany({
+      where: { id: solicitacao.id, status: "PENDENTE" },
       data: { status: "ACEITA" },
-    }),
-    prisma.item.updateMany({
-      where: { id: { in: idsEnvolvidos } },
+    });
+    if (resultado.count === 0) {
+      return false;
+    }
+
+    await tx.item.updateMany({
+      where: { id: { in: idsEnvolvidos }, status: "DISPONIVEL" },
       data: { status: "TROCADO" },
-    }),
+    });
+
     // Qualquer outro pedido pendente envolvendo qualquer um dos dois itens
     // não faz mais sentido — os itens acabaram de ser trocados.
-    prisma.tradeRequest.updateMany({
+    await tx.tradeRequest.updateMany({
       where: {
         id: { not: solicitacao.id },
         status: "PENDENTE",
@@ -108,8 +118,19 @@ export async function acceptTradeRequestAction(formData: FormData) {
         ],
       },
       data: { status: "RECUSADA" },
-    }),
-  ]);
+    });
+
+    return true;
+  });
+
+  if (!aceito) {
+    // Alguém já mexeu nesse pedido (outra aba, ou outro pedido concorrente
+    // envolvendo o mesmo item) — revalida mesmo assim pra essa aba parar de
+    // mostrar o pedido como pendente (e o botão não fica "Aceitando..."
+    // travado pra sempre esperando um estado que nunca chega).
+    revalidatePath("/trocas");
+    return;
+  }
 
   revalidatePath("/trocas");
   revalidatePath("/home");
@@ -123,12 +144,14 @@ export async function declineTradeRequestAction(formData: FormData) {
   const tradeRequestId = String(formData.get("tradeRequestId") || "");
 
   const solicitacao = await carregarSolicitacaoComoDono(tradeRequestId, user.id);
-  if (!solicitacao || solicitacao.status !== "PENDENTE") {
+  if (!solicitacao) {
     return;
   }
 
-  await prisma.tradeRequest.update({
-    where: { id: solicitacao.id },
+  // Guarda `status: "PENDENTE"` no where evita recusar (ou sobrescrever) um
+  // pedido que outra requisição concorrente já aceitou/cancelou.
+  await prisma.tradeRequest.updateMany({
+    where: { id: solicitacao.id, status: "PENDENTE" },
     data: { status: "RECUSADA" },
   });
 
@@ -142,16 +165,12 @@ export async function cancelTradeRequestAction(formData: FormData) {
   const solicitacao = await prisma.tradeRequest.findUnique({
     where: { id: tradeRequestId },
   });
-  if (
-    !solicitacao ||
-    solicitacao.solicitanteId !== user.id ||
-    solicitacao.status !== "PENDENTE"
-  ) {
+  if (!solicitacao || solicitacao.solicitanteId !== user.id) {
     return;
   }
 
-  await prisma.tradeRequest.update({
-    where: { id: solicitacao.id },
+  await prisma.tradeRequest.updateMany({
+    where: { id: solicitacao.id, status: "PENDENTE" },
     data: { status: "CANCELADA" },
   });
 

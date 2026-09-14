@@ -2,6 +2,7 @@ import type { Categoria } from "@prisma/client";
 import Link from "next/link";
 import SectionHeader from "./SectionHeader";
 import ItemCard from "./ItemCard";
+import HorizontalScroller from "./HorizontalScroller";
 
 type Item = {
   id: string;
@@ -43,7 +44,7 @@ export default function ItemsRow({
           <p className="text-sm text-reuse-text-secondary">{emptyMessage}</p>
         </div>
       ) : (
-        <div className="no-scrollbar flex gap-3 overflow-x-auto pb-1">
+        <HorizontalScroller className="no-scrollbar flex gap-3 overflow-x-auto pb-1">
           {itens.map((item, i) => (
             <Link
               key={item.id}
@@ -60,7 +61,7 @@ export default function ItemsRow({
               />
             </Link>
           ))}
-        </div>
+        </HorizontalScroller>
       )}
     </div>
   );

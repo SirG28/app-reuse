@@ -76,6 +76,15 @@ export async function POST(
         { status: 404 }
       );
     }
+    // Só um nível de profundidade: responder a uma resposta (em vez de a um
+    // comentário de topo) deixaria o registro fora de qualquer GET, já que
+    // este só busca comentários de topo com um nível de `replies`.
+    if (comentarioPai.parentId !== null) {
+      return NextResponse.json(
+        { error: "Não é possível responder a uma resposta." },
+        { status: 400 }
+      );
+    }
   }
 
   const comentario = await prisma.comment.create({

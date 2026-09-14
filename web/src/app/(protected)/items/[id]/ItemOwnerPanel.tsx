@@ -4,8 +4,10 @@ import { useActionState, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { updateItemAction, deleteItemAction } from "@/app/actions/items";
 import Button from "@/components/Button";
+import { iconButtonClass } from "@/components/IconButton";
 import Modal from "@/components/Modal";
 import { useToast } from "@/components/ToastProvider";
+import { IconPencil, IconPlus, IconTrash } from "@/components/icons";
 import { comprimirImagem } from "@/lib/comprimirImagem";
 import { CATEGORIAS } from "@/lib/categorias";
 import type { Categoria } from "@prisma/client";
@@ -57,37 +59,30 @@ export default function ItemOwnerPanel({ item }: { item: Item }) {
   }
 
   return (
-    <div className="mb-6 rounded-xl border border-reuse-border bg-white p-3.5">
-      <p className="mb-3 text-sm text-reuse-text-secondary">
-        Este item foi publicado por você.
-      </p>
-
-      <div className="flex gap-2.5">
-        <Button
+    <>
+      {/* Ícones de gerenciamento do próprio item — mesmo slot/padrão visual
+          do botão de favoritar que apareceria aqui para quem não é dono
+          (um dono não favorita o próprio item, então o espaço já era
+          reservado pra alguma ação sobre o item). Antes eram botões de texto
+          soltos mais abaixo, na área de contato — mais coerente ficarem
+          junto dos outros ícones de ação do card. */}
+      <div className="flex gap-2">
+        <button
           type="button"
-          variant="secondary"
-          size="sm"
-          className="flex items-center justify-center gap-1.5"
           onClick={() => setEditando(true)}
+          aria-label="Editar item"
+          className={`${iconButtonClass({ variant: "success" })} border border-reuse-green/30 bg-white`}
         >
-          <svg width={14} height={14} viewBox="0 0 16 16" fill="currentColor">
-            <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zm.854.854L11.207 2l1.5 1.5.793-.793zM10.5 2.207 3 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293L12.5 5.207zm-9 9.5v-.007L4.207 12 3.5 11.293 1.5 11.5z" />
-          </svg>
-          Editar
-        </Button>
-        <Button
+          <IconPencil size={15} />
+        </button>
+        <button
           type="button"
-          variant="danger"
-          size="sm"
-          className="flex items-center justify-center gap-1.5"
           onClick={() => setExcluindo(true)}
+          aria-label="Excluir item"
+          className={`${iconButtonClass({ variant: "danger" })} border border-reuse-danger/30 bg-white`}
         >
-          <svg width={14} height={14} viewBox="0 0 16 16" fill="currentColor">
-            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
-            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L13.882 4zM2.5 3h11V2h-11z" />
-          </svg>
-          Excluir
-        </Button>
+          <IconTrash size={15} />
+        </button>
       </div>
 
       <Modal open={editando} onClose={() => setEditando(false)}>
@@ -111,9 +106,10 @@ export default function ItemOwnerPanel({ item }: { item: Item }) {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="absolute rounded-lg border border-reuse-green bg-white px-4 py-2 text-[13px] font-semibold text-reuse-green"
+              className="absolute flex items-center gap-1.5 rounded-lg border border-reuse-green bg-white px-4 py-2 text-[13px] font-semibold text-reuse-green"
             >
-              ＋ {imagem ? "Trocar foto" : "Adicionar foto"}
+              <IconPlus size={13} />
+              {imagem ? "Trocar foto" : "Adicionar foto"}
             </button>
           </div>
 
@@ -219,6 +215,6 @@ export default function ItemOwnerPanel({ item }: { item: Item }) {
           Cancelar
         </Button>
       </Modal>
-    </div>
+    </>
   );
 }

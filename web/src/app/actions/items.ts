@@ -42,6 +42,14 @@ export async function createItemAction(
   redirect("/home?toast=published");
 }
 
+async function requireOwnedItem(id: string, userId: string) {
+  const item = await prisma.item.findUnique({ where: { id } });
+  if (!item || item.userId !== userId) {
+    return null;
+  }
+  return item;
+}
+
 export type UpdateItemState = { error?: string; success?: boolean } | undefined;
 
 export async function updateItemAction(
@@ -61,8 +69,8 @@ export async function updateItemAction(
     return { error: "Preencha todos os campos." };
   }
 
-  const item = await prisma.item.findUnique({ where: { id } });
-  if (!item || item.userId !== user.id) {
+  const item = await requireOwnedItem(id, user.id);
+  if (!item) {
     return { error: "Item não encontrado." };
   }
 
@@ -79,8 +87,8 @@ export async function deleteItemAction(formData: FormData) {
   const user = await requireSession();
   const id = String(formData.get("id") || "");
 
-  const item = await prisma.item.findUnique({ where: { id } });
-  if (!item || item.userId !== user.id) {
+  const item = await requireOwnedItem(id, user.id);
+  if (!item) {
     return;
   }
 

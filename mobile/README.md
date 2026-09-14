@@ -1,4 +1,6 @@
-# ReUse — App de Reutilização
+# ReUse — App de Reutilização (Mobile)
+
+Este README cobre o app mobile. Visão geral do monorepo (mobile + web) e integrantes: [README raiz](../README.md).
 
 ## Sobre o projeto
 
@@ -73,27 +75,28 @@ Helper centralizado em `services/cacheService.ts` com **TTL configurável** e **
 ## Estrutura de pastas relevante
 
 ```
-app/
-  index.tsx          → splash / verificação de sessão
-  login.tsx          → tela de login
-  register.tsx       → tela de cadastro (nova)
-  home.tsx           → feed de itens (consome MockAPI + cache)
-  tips.tsx           → dicas sustentáveis (nova, GNews + cache)
-  PublicItem.tsx     → publicar item (POST MockAPI + AsyncStorage)
-  myItems.tsx        → itens publicados pelo usuário
-  profile.tsx        → perfil + logout
+mobile/
+  app/
+    index.tsx          → splash / verificação de sessão
+    login.tsx          → tela de login
+    register.tsx       → tela de cadastro (nova)
+    home.tsx           → feed de itens (consome MockAPI + cache)
+    tips.tsx           → dicas sustentáveis (nova, GNews + cache)
+    PublicItem.tsx     → publicar item (POST MockAPI + AsyncStorage)
+    myItems.tsx        → itens publicados pelo usuário
+    profile.tsx        → perfil + logout
 
-services/            ← camada de comunicação com APIs
-  api.ts             → cliente axios base + interceptors
-  authService.ts     → login, cadastro, logout, sessão
-  itemsService.ts    → busca e cria itens (com cache)
-  cepService.ts      → integração com ViaCEP
-  newsService.ts     → integração com GNews (com cache)
-  cacheService.ts    → utilitário genérico de cache com TTL
+  services/             ← camada de comunicação com APIs
+    api.ts             → cliente axios base + interceptors
+    authService.ts     → login, cadastro, logout, sessão
+    itemsService.ts    → busca e cria itens (com cache)
+    cepService.ts      → integração com ViaCEP
+    newsService.ts     → integração com GNews (com cache)
+    cacheService.ts    → utilitário genérico de cache com TTL
 
-components/
-  OfflineBanner.tsx  → banner de offline (NetInfo)
-  ...                → componentes existentes
+  components/
+    OfflineBanner.tsx  → banner de offline (NetInfo)
+    ...                → componentes existentes
 ```
 
 ---
@@ -123,7 +126,7 @@ components/
 ```bash
 # 1. Clonar o repositório
 git clone https://github.com/SirG28/app-reuse.git
-cd app-reuse
+cd app-reuse/mobile
 
 # 2. Instalar dependências
 npm install
@@ -165,10 +168,3 @@ O projeto usa **MockAPI** e **GNews**, ambas com configurações via constantes 
 - **Filtragem de usuários por e-mail é feita client-side** porque a instância do MockAPI utilizada retorna 404 ao receber filtros via query string em GET. Em produção real, seria feita no backend.
 - **Senhas são armazenadas em texto puro no MockAPI** — apenas para fins acadêmicos. Em produção, usaria-se hash (bcrypt), JWT e backend customizado.
 - **Cache stale**: em caso de falha da API, o app retorna os dados em cache mesmo expirados, garantindo experiência offline.
-
----
-
-## Integrantes
-
-- **Ana Carolina Cantarelli Fernandes** — RM: 561491
-- **Sarah Gonçalves Garcia** — RM: 563539

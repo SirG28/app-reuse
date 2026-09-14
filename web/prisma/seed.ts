@@ -45,10 +45,38 @@ async function main() {
     },
   });
 
-  // Reinicia os itens das duas contas de demonstração — o onDelete: Cascade
+  const camila = await prisma.user.upsert({
+    where: { email: "camila@reuse.com" },
+    update: {},
+    create: {
+      name: "Camila Rocha",
+      email: "camila@reuse.com",
+      passwordHash: senhaHash,
+      cep: "30130010",
+      cidade: "Belo Horizonte",
+      estado: "MG",
+    },
+  });
+
+  const diego = await prisma.user.upsert({
+    where: { email: "diego@reuse.com" },
+    update: {},
+    create: {
+      name: "Diego Santos",
+      email: "diego@reuse.com",
+      passwordHash: senhaHash,
+      cep: "80010000",
+      cidade: "Curitiba",
+      estado: "PR",
+    },
+  });
+
+  // Reinicia os itens das quatro contas de demonstração — o onDelete: Cascade
   // do schema já remove comentários, histórico de visualização e favoritos
   // ligados a eles.
-  await prisma.item.deleteMany({ where: { userId: { in: [ana.id, bruno.id] } } });
+  await prisma.item.deleteMany({
+    where: { userId: { in: [ana.id, bruno.id, camila.id, diego.id] } },
+  });
 
   const [quadro, , cafeteira, , , , bicicleta, furadeira, violao, mouse] =
     await Promise.all([
@@ -210,6 +238,140 @@ async function main() {
       }),
     ]);
 
+  const [jogoTabuleiro, , camera, , , , , teclado, ferramentas] =
+    await Promise.all([
+      prisma.item.create({
+        data: {
+          titulo: "Jogo de tabuleiro",
+          descricao:
+            "Jogo de estratégia para 2 a 4 jogadores, caixa um pouco desgastada mas todas as peças completas.",
+          troca: "Outros jogos de tabuleiro ou cartas",
+          categoria: "BRINQUEDOS_INFANTIL",
+          whatsapp: "(31) 98765-4321",
+          imagem:
+            "https://images.unsplash.com/photo-1629760946220-5693ee4c46ac?w=600",
+          userId: camila.id,
+        },
+      }),
+      prisma.item.create({
+        data: {
+          titulo: "Planta ornamental em vaso",
+          descricao:
+            "Planta de interior já adulta, vaso de cerâmica incluso. Precisa de pouca luz direta.",
+          troca: "Outra planta ou vaso decorativo",
+          categoria: "OUTROS",
+          whatsapp: "(31) 98765-4321",
+          imagem:
+            "https://images.unsplash.com/photo-1669392597221-bbfd4b6e13ff?w=600",
+          userId: camila.id,
+        },
+      }),
+      prisma.item.create({
+        data: {
+          titulo: "Câmera fotográfica antiga",
+          descricao:
+            "Câmera analógica funcionando, ótima pra quem coleciona ou quer aprender fotografia em filme.",
+          troca: "Lente fotográfica ou câmera digital compacta",
+          categoria: "ELETRONICOS",
+          whatsapp: "(31) 98765-4321",
+          imagem:
+            "https://images.unsplash.com/photo-1603208234872-619ffa1209cb?w=600",
+          userId: camila.id,
+        },
+      }),
+      prisma.item.create({
+        data: {
+          titulo: "Bolsa de couro",
+          descricao:
+            "Bolsa de couro legítimo, cor caramelo, alça ajustável. Usada poucas vezes, sem manchas.",
+          troca: "Outra bolsa ou mochila de couro",
+          categoria: "ROUPAS_ACESSORIOS",
+          whatsapp: "(31) 98765-4321",
+          imagem:
+            "https://images.unsplash.com/photo-1605733513597-a8f8341084e6?w=600",
+          userId: camila.id,
+        },
+      }),
+      prisma.item.create({
+        data: {
+          titulo: "Skate completo",
+          descricao:
+            "Skate montado, rolamentos revisados recentemente. Ótimo pra quem tá começando.",
+          troca: "Patins, bicicleta ou outro equipamento de rua",
+          categoria: "ESPORTE_LAZER",
+          whatsapp: "(31) 98765-4321",
+          imagem:
+            "https://images.unsplash.com/photo-1520045892732-304bc3ac5d8e?w=600",
+          userId: camila.id,
+        },
+      }),
+      prisma.item.create({
+        data: {
+          titulo: "Boneco de ação colecionável",
+          descricao:
+            "Action figure articulado, ainda na embalagem original, nunca aberto.",
+          troca: "Outro colecionável ou boneco de ação",
+          categoria: "BRINQUEDOS_INFANTIL",
+          whatsapp: "(41) 99123-4567",
+          imagem:
+            "https://images.unsplash.com/photo-1606663889134-b1dedb5ed8b7?w=600",
+          userId: diego.id,
+        },
+      }),
+      prisma.item.create({
+        data: {
+          titulo: "Luminária de mesa",
+          descricao:
+            "Luminária de mesa com braço articulado e regulagem de intensidade. Funcionando perfeitamente.",
+          troca: "Outra luminária ou objeto de decoração",
+          categoria: "OUTROS",
+          whatsapp: "(41) 99123-4567",
+          imagem:
+            "https://images.unsplash.com/photo-1519219788971-8d9797e0928e?w=600",
+          userId: diego.id,
+        },
+      }),
+      prisma.item.create({
+        data: {
+          titulo: "Teclado musical",
+          descricao:
+            "Teclado de 61 teclas com vários timbres e ritmos, fonte inclusa. Ótimo pra iniciantes.",
+          troca: "Violão, cavaquinho ou outro instrumento",
+          categoria: "INSTRUMENTOS_MUSICAIS",
+          whatsapp: "(41) 99123-4567",
+          imagem:
+            "https://images.unsplash.com/photo-1538402074774-8e624f3f7e5d?w=600",
+          userId: diego.id,
+        },
+      }),
+      prisma.item.create({
+        data: {
+          titulo: "Kit de ferramentas manuais",
+          descricao:
+            "Maleta com chaves de fenda, alicates e chaves allen, praticamente completa. Pouco uso.",
+          troca: "Furadeira, parafusadeira ou outra ferramenta",
+          categoria: "FERRAMENTAS_JARDIM",
+          whatsapp: "(41) 99123-4567",
+          imagem:
+            "https://images.unsplash.com/photo-1581783898377-1c85bf937427?w=600",
+          userId: diego.id,
+        },
+      }),
+      prisma.item.create({
+        data: {
+          titulo: "Cadeira de escritório",
+          descricao:
+            "Cadeira giratória com apoio de braço e ajuste de altura. Estofado em bom estado.",
+          troca: "Outra cadeira ou mesa de escritório",
+          categoria: "MOVEIS_DECORACAO",
+          whatsapp: "(41) 99123-4567",
+          imagem:
+            "https://images.unsplash.com/photo-1612372606404-0ab33e7187ee?w=600",
+          userId: diego.id,
+        },
+      }),
+    ]);
+
   // Comentários e respostas simuladas — sempre entre as duas contas (o dono
   // de um item não comenta nele mesmo, regra da própria plataforma).
   async function conversa(
@@ -267,10 +429,34 @@ async function main() {
     texto: "É compatível com Mac ou só Windows?",
   });
 
-  console.log(
-    "Seed concluído: contas de teste avulsas removidas, 2 usuários de demonstração, 12 itens e comentários criados."
+  await conversa(
+    jogoTabuleiro.id,
+    { autor: diego.id, texto: "Ainda tem todas as peças e o dado?" },
+    { autor: camila.id, texto: "Tem sim, conferi tudo antes de anunciar!" }
   );
-  console.log("Login de teste: ana@reuse.com / bruno@reuse.com — senha: reuse123");
+
+  await conversa(
+    teclado.id,
+    { autor: camila.id, texto: "Ele precisa de pilha ou só na tomada?" },
+    { autor: diego.id, texto: "Funciona nos dois — vem com o fonte, mas aceita pilha também." }
+  );
+
+  await conversa(camera.id, {
+    autor: diego.id,
+    texto: "Ainda vem com o filme ou só o corpo da câmera?",
+  });
+
+  await conversa(ferramentas.id, {
+    autor: camila.id,
+    texto: "Tem chave de fenda Phillips grande no kit?",
+  });
+
+  console.log(
+    "Seed concluído: contas de teste avulsas removidas, 4 usuários de demonstração, 22 itens e comentários criados."
+  );
+  console.log(
+    "Login de teste: ana@reuse.com / bruno@reuse.com / camila@reuse.com / diego@reuse.com — senha: reuse123"
+  );
 }
 
 main()

@@ -5,6 +5,7 @@ import { cancelTradeRequestAction } from "@/app/actions/trades";
 import Badge from "@/components/Badge";
 import ScreenHeader from "@/components/ScreenHeader";
 import SectionHeader from "@/components/SectionHeader";
+import { IconSwap } from "@/components/icons";
 import TradeRequestActions from "./TradeRequestActions";
 
 export const metadata = {
@@ -30,10 +31,15 @@ function StatusBadge({ status }: { status: string }) {
   return <Badge tone={info.tone}>{info.label}</Badge>;
 }
 
-function MiniItem({ item }: { item: { titulo: string; imagem: string | null } }) {
+// Link em vez de div: em telas maiores, com a imagem bem maior, dá pra abrir
+// o item direto daqui em vez de precisar ir na aba "Itens" procurar de novo.
+function MiniItem({ item }: { item: { id: string; titulo: string; imagem: string | null } }) {
   return (
-    <div className="flex flex-1 items-center gap-2 overflow-hidden">
-      <div className="h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-reuse-surface-sunken">
+    <Link
+      href={`/items/${item.id}`}
+      className="focus-ring flex min-w-0 flex-1 items-center gap-2 rounded-lg md:gap-3"
+    >
+      <div className="h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-reuse-surface-sunken md:h-16 md:w-16">
         {item.imagem ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={item.imagem} alt={item.titulo} className="h-full w-full object-cover" />
@@ -41,7 +47,26 @@ function MiniItem({ item }: { item: { titulo: string; imagem: string | null } })
           <div className="h-full w-full bg-reuse-neutral-200" />
         )}
       </div>
-      <p className="truncate text-[13px] font-semibold text-reuse-text">{item.titulo}</p>
+      <p className="truncate text-[13px] font-semibold text-reuse-text md:text-sm">{item.titulo}</p>
+    </Link>
+  );
+}
+
+// Fileira de itens + seta de troca: em telas maiores, ao lado do status/ações
+// na mesma linha em vez de empilhado (ver o componente pai) — sozinha ela já
+// ocupa a largura toda tanto no mobile quanto no desktop.
+function ItemsRow({
+  esquerda,
+  direita,
+}: {
+  esquerda: { id: string; titulo: string; imagem: string | null };
+  direita: { id: string; titulo: string; imagem: string | null };
+}) {
+  return (
+    <div className="flex min-w-0 flex-1 items-center gap-2 md:gap-4">
+      <MiniItem item={esquerda} />
+      <IconSwap size={16} className="shrink-0 text-reuse-text-secondary" />
+      <MiniItem item={direita} />
     </div>
   );
 }
@@ -84,29 +109,35 @@ export default async function TrocasPage() {
             {recebidas.map((solicitacao) => (
               <div
                 key={solicitacao.id}
-                className="rounded-xl border border-reuse-border bg-white p-3.5"
+                className="rounded-xl border border-reuse-border bg-white p-3.5 md:p-4"
               >
-                <p className="mb-2 text-xs text-reuse-text-secondary">
+                <p className="mb-3 text-xs text-reuse-text-secondary">
                   <span className="font-semibold text-reuse-text">
                     {solicitacao.solicitante.name}
                   </span>{" "}
                   quer trocar por:
                 </p>
-                <div className="mb-2 flex items-center gap-2">
-                  <MiniItem item={solicitacao.itemDesejado} />
-                  <span className="shrink-0 text-reuse-text-secondary">⇄</span>
-                  <MiniItem item={solicitacao.itemOfertado} />
+
+                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-4">
+                  <ItemsRow esquerda={solicitacao.itemDesejado} direita={solicitacao.itemOfertado} />
+
+                  <div className="md:w-56 md:shrink-0">
+                    {solicitacao.status === "PENDENTE" ? (
+                      <TradeRequestActions tradeRequestId={solicitacao.id} />
+                    ) : (
+                      <StatusBadge status={solicitacao.status} />
+                    )}
+                  </div>
                 </div>
+
+                {/* Numa linha própria, não espremida entre os itens e as
+                    ações — como o texto tem tamanho variável, dividir a
+                    largura em 3 nessa mesma linha deixava pouco espaço pros
+                    itens em telas médias. */}
                 {solicitacao.mensagem && (
-                  <p className="mb-2 rounded-lg bg-reuse-bg px-2.5 py-2 text-sm text-reuse-text">
+                  <p className="mt-3 rounded-lg bg-reuse-bg px-2.5 py-2 text-sm text-reuse-text">
                     &ldquo;{solicitacao.mensagem}&rdquo;
                   </p>
-                )}
-
-                {solicitacao.status === "PENDENTE" ? (
-                  <TradeRequestActions tradeRequestId={solicitacao.id} />
-                ) : (
-                  <StatusBadge status={solicitacao.status} />
                 )}
               </div>
             ))}
@@ -123,37 +154,34 @@ export default async function TrocasPage() {
             {enviadas.map((solicitacao) => (
               <div
                 key={solicitacao.id}
-                className="rounded-xl border border-reuse-border bg-white p-3.5"
+                className="rounded-xl border border-reuse-border bg-white p-3.5 md:p-4"
               >
-                <p className="mb-2 text-xs text-reuse-text-secondary">
+                <p className="mb-3 text-xs text-reuse-text-secondary">
                   Para{" "}
                   <span className="font-semibold text-reuse-text">
                     {solicitacao.itemDesejado.user.name}
                   </span>
                   , você ofereceu:
                 </p>
-                <div className="mb-2 flex items-center gap-2">
-                  <MiniItem item={solicitacao.itemOfertado} />
-                  <span className="shrink-0 text-reuse-text-secondary">⇄</span>
-                  <Link href={`/items/${solicitacao.itemDesejado.id}`} className="flex-1">
-                    <MiniItem item={solicitacao.itemDesejado} />
-                  </Link>
-                </div>
 
-                <div className="flex items-center justify-between gap-2">
-                  <StatusBadge status={solicitacao.status} />
+                <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-5">
+                  <ItemsRow esquerda={solicitacao.itemOfertado} direita={solicitacao.itemDesejado} />
 
-                  {solicitacao.status === "PENDENTE" && (
-                    <form action={cancelTradeRequestAction}>
-                      <input type="hidden" name="tradeRequestId" value={solicitacao.id} />
-                      <button
-                        type="submit"
-                        className="focus-ring rounded text-[13px] font-semibold text-reuse-danger hover:underline"
-                      >
-                        Cancelar
-                      </button>
-                    </form>
-                  )}
+                  <div className="flex items-center gap-3 md:w-56 md:shrink-0 md:justify-between">
+                    <StatusBadge status={solicitacao.status} />
+
+                    {solicitacao.status === "PENDENTE" && (
+                      <form action={cancelTradeRequestAction}>
+                        <input type="hidden" name="tradeRequestId" value={solicitacao.id} />
+                        <button
+                          type="submit"
+                          className="focus-ring rounded text-[13px] font-semibold text-reuse-danger hover:underline"
+                        >
+                          Cancelar
+                        </button>
+                      </form>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}

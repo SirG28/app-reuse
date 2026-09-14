@@ -5,7 +5,9 @@ import UserSummaryCard from "@/components/UserSummaryCard";
 import SectionHeader from "@/components/SectionHeader";
 import ShortcutCard from "@/components/ShortcutCard";
 import ItemsRow from "@/components/ItemsRow";
+import HorizontalScroller from "@/components/HorizontalScroller";
 import ToastFromQuery from "./ToastFromQuery";
+import { IconLightbulb, IconPlus, IconSwap, IconTrophy } from "@/components/icons";
 
 const DOIS_DIAS_MS = 2 * 24 * 60 * 60 * 1000;
 
@@ -18,7 +20,7 @@ function dataLimiteNovidades() {
 export default async function HomePage() {
   const user = await requireSession();
 
-  const [itemCount, itens, novidades, vistos, favoritos] = await Promise.all([
+  const [itemCount, itens, novidades, vistos] = await Promise.all([
     prisma.item.count({ where: { userId: user.id } }),
     prisma.item.findMany({
       where: { userId: { not: user.id }, status: "DISPONIVEL" },
@@ -39,12 +41,6 @@ export default async function HomePage() {
       take: 10,
       include: { item: true },
     }),
-    prisma.favorite.findMany({
-      where: { userId: user.id },
-      orderBy: { createdAt: "desc" },
-      take: 10,
-      include: { item: true },
-    }),
   ]);
 
   // Mesma regra de XP do mobile: +50 XP por item publicado (services/itemsService.ts + app/PublicItem.tsx)
@@ -60,27 +56,27 @@ export default async function HomePage() {
         <UserSummaryCard name={user.name} itemCount={itemCount} pontos={pontos} />
 
         <SectionHeader title="Atalhos" />
-        <div className="no-scrollbar mb-[18px] flex gap-2.5 overflow-x-auto pb-1">
+        <HorizontalScroller className="no-scrollbar mb-[18px] flex gap-2.5 overflow-x-auto pb-1">
           <ShortcutCard
             title="Publicar Item"
             xp="+ 50 XP"
-            icon="+"
+            icon={<IconPlus size={16} />}
             href="/items/new"
           />
           <ShortcutCard
             title="Dicas Sustentáveis"
-            xp="🌱"
-            icon="💡"
+            xp="Sustentável"
+            icon={<IconLightbulb size={16} />}
             href="/tips"
           />
           <ShortcutCard
             title="Realizar Troca"
             xp="+ 100 XP"
-            icon="⇄"
+            icon={<IconSwap size={16} />}
             href="/trocas"
           />
-          <ShortcutCard title="Ranking" xp="+ 20 XP" icon="🏆" />
-        </div>
+          <ShortcutCard title="Ranking" xp="+ 20 XP" icon={<IconTrophy size={16} />} />
+        </HorizontalScroller>
 
         <ItemsRow
           title="Itens para trocar"
@@ -95,11 +91,6 @@ export default async function HomePage() {
         <ItemsRow
           title="Últimos vistos"
           itens={vistos.map((v) => v.item)}
-        />
-
-        <ItemsRow
-          title="Seus favoritos"
-          itens={favoritos.map((f) => f.item)}
         />
       </div>
     </div>

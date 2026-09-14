@@ -50,8 +50,8 @@ export default function EditProfileModal({ user }: { user: User }) {
         type="button"
         variant="secondary"
         size="sm"
-        fullWidth
-        className="mt-3"
+        fullWidth={false}
+        className="flex-1"
         onClick={() => setAberto(true)}
       >
         Editar perfil

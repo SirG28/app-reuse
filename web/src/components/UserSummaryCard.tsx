@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
+import { IconCheck, IconLightning, IconStar } from "@/components/icons";
 
 type Props = {
   name: string;
@@ -15,11 +16,11 @@ export default function UserSummaryCard({ name, itemCount, pontos }: Props) {
     <div className="mb-[18px] rounded-2xl border border-reuse-border bg-reuse-surface-raised p-3">
       <div className="mb-3 flex items-center">
         <div className="relative mr-2.5">
-          <div className="flex h-[34px] w-[34px] items-center justify-center rounded-full bg-reuse-status-accepted-bg">
-            <span className="text-lg text-reuse-green">◔</span>
+          <div className="flex h-[34px] w-[34px] items-center justify-center rounded-full bg-reuse-status-accepted-bg text-reuse-green">
+            <IconLightning size={16} />
           </div>
-          <div className="absolute -right-0.5 -bottom-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-reuse-accent-tint">
-            <span className="text-[10px] font-bold text-reuse-accent">✓</span>
+          <div className="absolute -right-0.5 -bottom-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-reuse-accent-tint text-reuse-accent">
+            <IconCheck size={10} />
           </div>
         </div>
         <div className="flex-1">
@@ -29,9 +30,10 @@ export default function UserSummaryCard({ name, itemCount, pontos }: Props) {
           <p className="mt-0.5 text-xs text-reuse-neutral-500">Nível 1</p>
         </div>
 
-        <div className="shrink-0 rounded-full border border-reuse-green bg-reuse-status-accepted-bg px-2.5 py-1">
-          <span className="text-xs font-bold text-reuse-green">
-            ★ {pontos.toLocaleString("pt-BR")} XP
+        <div className="flex shrink-0 items-center gap-1 rounded-full border border-reuse-green bg-reuse-status-accepted-bg px-2.5 py-1 text-reuse-green">
+          <IconStar size={11} />
+          <span className="text-xs font-bold">
+            {pontos.toLocaleString("pt-BR")} XP
           </span>
         </div>
       </div>

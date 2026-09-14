@@ -9,6 +9,7 @@ import Modal from "@/components/Modal";
 import { inputClass, inputHeightClass, labelClass, textAreaClass } from "@/lib/formStyles";
 import { comprimirImagem } from "@/lib/comprimirImagem";
 import { CATEGORIAS } from "@/lib/categorias";
+import { IconClose, IconPlus } from "@/components/icons";
 
 export default function PublishItemForm() {
   const router = useRouter();
@@ -42,10 +43,10 @@ export default function PublishItemForm() {
           <button
             type="button"
             onClick={() => setShowExitModal(true)}
-            className="text-xl text-reuse-green"
+            className="text-reuse-green"
             aria-label="Fechar"
           >
-            ×
+            <IconClose size={20} />
           </button>
         }
       />
@@ -66,9 +67,10 @@ export default function PublishItemForm() {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="absolute rounded-lg border border-reuse-green bg-reuse-bg px-4 py-2 text-[13px] font-semibold text-reuse-green"
+            className="absolute flex items-center gap-1.5 rounded-lg border border-reuse-green bg-reuse-bg px-4 py-2 text-[13px] font-semibold text-reuse-green"
           >
-            ＋ Adicionar foto
+            <IconPlus size={13} />
+            Adicionar foto
           </button>
         </div>
 
@@ -146,18 +148,6 @@ export default function PublishItemForm() {
           className={`${inputClass} ${inputHeightClass} mb-3.5`}
         />
 
-        <label className={labelClass} htmlFor="email">
-          Email
-        </label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          autoCapitalize="none"
-          placeholder="lorem@gmail.com"
-          className={`${inputClass} ${inputHeightClass} mb-3.5`}
-        />
-
         {state?.error && (
           <p className="mb-3 rounded-lg border border-reuse-danger/30 bg-red-50 px-3 py-2 text-sm text-reuse-danger">
             {state.error}
@@ -165,8 +155,15 @@ export default function PublishItemForm() {
         )}
 
         <div className="mt-3.5">
-          <Button type="submit" disabled={pending}>
-            {pending ? "Publicando..." : "+   Publicar item"}
+          <Button type="submit" disabled={pending} className="flex items-center justify-center gap-2">
+            {pending ? (
+              "Publicando..."
+            ) : (
+              <>
+                <IconPlus size={16} />
+                Publicar item
+              </>
+            )}
           </Button>
         </div>
       </form>
@@ -176,10 +173,10 @@ export default function PublishItemForm() {
           <button
             type="button"
             onClick={() => setShowExitModal(false)}
-            className="text-2xl text-reuse-text"
+            className="text-reuse-text"
             aria-label="Fechar"
           >
-            ×
+            <IconClose size={22} />
           </button>
         </div>
 

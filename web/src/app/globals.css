@@ -73,6 +73,27 @@
 body {
   background: var(--color-reuse-bg);
   color: var(--color-reuse-text);
+  /* Scroll anchoring (padrão no Chrome) tenta compensar mudanças de altura
+     acima da viewport ajustando o scroll sozinho — no reload, pequenas
+     diferenças de altura durante a hidratação (carrosséis, imagens) faziam
+     a página "pular" alguns pixels pra baixo sem o usuário rolar nada. */
+  overflow-anchor: none;
+}
+
+/* Receita padrão do Google para o Material Symbols (fonte carregada em
+   src/app/layout.tsx) — src/components/Icon.tsx sobrescreve font-size e
+   font-variation-settings (FILL) por instância. */
+.material-symbols-outlined {
+  font-family: "Material Symbols Outlined";
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
 }
 
 .focus-ring {
